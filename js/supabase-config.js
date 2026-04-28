@@ -1,10 +1,9 @@
-// js/supabase-config.js — AXON-LAB v2.0
+// // js/supabase-config.js — AXON-LAB v2.0
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-// ⚠️  REEMPLAZA con tus valores reales de:
-//     Supabase Dashboard → Project Settings → API
-const SUPABASE_URL     = 'https://xxrxoyotgragaunygsne.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_dmHdG4_xal2iWHFagZjo2Q_PFtxHfPJ';
+// ✅ Credenciales del proyecto: librysniqcicbdcobmzu
+const SUPABASE_URL      = 'https://librysniqcicbdcobmzu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_OMlvkBnkhJOY1sZVIhS54Q_DENu2TpF';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
