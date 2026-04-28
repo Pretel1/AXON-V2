@@ -1,0 +1,50 @@
+<!-- pages/laboratorios.html — AXON-LAB v2.0 -->
+<div class="page fade-in">
+    <div class="container" style="padding:1rem;">
+
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+            <div>
+                <h2 style="margin:0;">📚 Laboratorios</h2>
+                <p style="color:#6b7280;font-size:.9rem;margin:.25rem 0 0;">Explora todos los recursos disponibles</p>
+            </div>
+            <button class="btn btn-primary" onclick="location.hash='subir'" id="btnNuevoLab" style="display:none;">
+                ＋ Subir laboratorio
+            </button>
+        </div>
+
+        <!-- Barra de búsqueda y filtros -->
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+            <input id="searchInput" type="search" placeholder="🔍 Buscar laboratorios…"
+                   style="flex:1;min-width:200px;padding:.6rem 1rem;border:1px solid #d1d5db;border-radius:8px;font-size:.95rem;">
+            <select id="filtroCategoria"
+                    style="padding:.6rem 1rem;border:1px solid #d1d5db;border-radius:8px;font-size:.9rem;background:#fff;">
+                <option value="todos">🏷️ Todas las categorías</option>
+            </select>
+        </div>
+
+        <!-- Grid de laboratorios -->
+        <div id="listaLaboratorios"
+             style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.25rem;">
+            <p style="text-align:center;grid-column:1/-1;color:#9ca3af;padding:3rem;">Cargando…</p>
+        </div>
+
+    </div>
+</div>
+
+<style>
+.lab-card { background:#fff;border-radius:12px;border:1px solid #e5e7eb;padding:1.25rem;cursor:pointer;transition:.2s;box-shadow:0 2px 6px rgba(0,0,0,.04); }
+.lab-card:hover { box-shadow:0 6px 20px rgba(0,0,0,.1);transform:translateY(-2px); }
+.lab-card__badge { display:inline-block;font-size:.75rem;background:#e3f2fd;color:#1565c0;padding:.2rem .65rem;border-radius:999px;margin-bottom:.6rem;font-weight:600; }
+.lab-card__title { font-size:1rem;font-weight:700;margin:.25rem 0 .5rem;line-height:1.35; }
+.lab-card__desc  { font-size:.85rem;color:#6b7280;line-height:1.5;margin-bottom:.75rem; }
+.lab-card__meta  { display:flex;gap:.75rem;font-size:.78rem;color:#9ca3af;flex-wrap:wrap; }
+</style>
+
+<script type="module">
+import { haySesionActiva } from '../js/auth.js';
+// Mostrar botón "Subir" si hay sesión
+if (haySesionActiva()) {
+    const btn = document.getElementById('btnNuevoLab');
+    if (btn) btn.style.display = 'inline-flex';
+}
+</script>

@@ -1,0 +1,489 @@
+/* ============================================
+   AXON - ANIMACIONES CSS
+   Transiciones, efectos y keyframes
+   ============================================ */
+
+/* ============================================
+   1. KEYFRAMES BASE
+   ============================================ */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes scaleOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.05);
+    }
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 5px var(--color-primary);
+    }
+    50% {
+        box-shadow: 0 0 20px var(--color-primary);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        text-shadow: 0 0 5px var(--color-primary);
+    }
+    50% {
+        text-shadow: 0 0 20px var(--color-primary);
+    }
+}
+
+@keyframes borderGlow {
+    0%, 100% {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 5px var(--color-primary);
+    }
+    50% {
+        border-color: var(--color-secondary);
+        box-shadow: 0 0 20px var(--color-secondary);
+    }
+}
+
+/* ============================================
+   2. CLASES DE ANIMACIÓN
+   ============================================ */
+.animate-fade-in {
+    animation: fadeIn var(--transition-slow) forwards;
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp var(--transition-slow) forwards;
+}
+
+.animate-fade-in-down {
+    animation: fadeInDown var(--transition-slow) forwards;
+}
+
+.animate-fade-in-left {
+    animation: fadeInLeft var(--transition-slow) forwards;
+}
+
+.animate-fade-in-right {
+    animation: fadeInRight var(--transition-slow) forwards;
+}
+
+.animate-scale-in {
+    animation: scaleIn var(--transition-slow) forwards;
+}
+
+.animate-scale-out {
+    animation: scaleOut var(--transition-slow) forwards;
+}
+
+.animate-slide-left {
+    animation: slideInLeft var(--transition-slow) forwards;
+}
+
+.animate-slide-right {
+    animation: slideInRight var(--transition-slow) forwards;
+}
+
+.animate-slide-up {
+    animation: slideInUp var(--transition-slow) forwards;
+}
+
+.animate-slide-down {
+    animation: slideInDown var(--transition-slow) forwards;
+}
+
+.animate-pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+.animate-bounce {
+    animation: bounce 1s ease-in-out infinite;
+}
+
+.animate-shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+.animate-blink {
+    animation: blink 1s step-end infinite;
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+.animate-glow {
+    animation: glow 2s ease-in-out infinite;
+}
+
+.animate-border-glow {
+    animation: borderGlow 2s ease-in-out infinite;
+}
+
+/* ============================================
+   3. ANIMACIONES CON RETRASO
+   ============================================ */
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }
+.delay-6 { animation-delay: 0.6s; }
+.delay-7 { animation-delay: 0.7s; }
+.delay-8 { animation-delay: 0.8s; }
+.delay-9 { animation-delay: 0.9s; }
+.delay-10 { animation-delay: 1s; }
+
+/* ============================================
+   4. DURACIONES
+   ============================================ */
+.duration-fast { animation-duration: var(--transition-fast); }
+.duration-base { animation-duration: var(--transition-base); }
+.duration-slow { animation-duration: var(--transition-slow); }
+.duration-slower { animation-duration: var(--transition-slower); }
+
+/* ============================================
+   5. TRANSICIONES PARA HOVER
+   ============================================ */
+.hover-lift {
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-glow);
+}
+
+.hover-scale {
+    transition: transform var(--transition-base);
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+.hover-glow {
+    transition: box-shadow var(--transition-base);
+}
+
+.hover-glow:hover {
+    box-shadow: var(--shadow-glow);
+}
+
+.hover-opacity {
+    transition: opacity var(--transition-base);
+}
+
+.hover-opacity:hover {
+    opacity: 0.8;
+}
+
+.hover-color {
+    transition: color var(--transition-base);
+}
+
+.hover-color:hover {
+    color: var(--color-primary);
+}
+
+/* ============================================
+   6. SCROLL REVEAL
+   ============================================ */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.reveal-left {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal-left.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.reveal-right {
+    opacity: 0;
+    transform: translateX(30px);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal-right.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.reveal-scale {
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal-scale.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* ============================================
+   7. EFECTOS DE CARGA
+   ============================================ */
+.shimmer {
+    background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        rgba(255, 255, 255, 0) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* ============================================
+   8. TIPOGRAFÍA ANIMADA
+   ============================================ */
+.typing {
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid var(--color-primary);
+    animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: var(--color-primary); }
+}
+
+/* ============================================
+   9. EFECTOS DE ENTRADA PARA PÁGINAS
+   ============================================ */
+.page {
+    animation: fadeInUp 0.4s ease forwards;
+}
+
+/* ============================================
+   10. ANIMACIONES PARA EL CARRUSEL
+   ============================================ */
+.carousel-card {
+    transition: all var(--transition-base);
+}
+
+.carousel-card.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* ============================================
+   11. ANIMACIONES PARA NOTIFICACIONES
+   ============================================ */
+.toast {
+    animation: slideInRight var(--transition-base) forwards;
+}
+
+.toast.hide {
+    animation: fadeInRight var(--transition-base) reverse forwards;
+}
+
+/* ============================================
+   12. ANIMACIONES PARA EL SIDEBAR
+   ============================================ */
+.sidebar {
+    transition: transform var(--transition-base);
+}
+
+.sidebar-overlay {
+    transition: opacity var(--transition-base);
+}

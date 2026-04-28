@@ -1,0 +1,273 @@
+/* ============================================
+   AXON - DARK MODE / LIGHT MODE
+   Toggle entre tema oscuro y claro
+   ============================================ */
+
+/* ============================================
+   1. DARK MODE (por defecto)
+   ============================================ */
+:root {
+    /* Colores principales */
+    --color-primary: #00d4ff;
+    --color-primary-dark: #0099cc;
+    --color-primary-light: #33ddff;
+    --color-secondary: #b300ff;
+    --color-secondary-dark: #8a00cc;
+    --color-secondary-light: #cc33ff;
+    --color-accent: #ff00ff;
+    --color-success: #00ff88;
+    --color-warning: #ffaa00;
+    --color-error: #ff3366;
+    
+    /* Colores de fondo - Dark */
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #050508;
+    --bg-card: rgba(15, 15, 25, 0.95);
+    --bg-card-solid: #0f0f19;
+    --bg-sidebar: rgba(5, 5, 8, 0.98);
+    --bg-header: rgba(5, 5, 8, 0.95);
+    --bg-light: #1a1a2e;
+    --bg-hover: rgba(0, 212, 255, 0.05);
+    
+    /* Colores de texto - Dark */
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0b0;
+    --text-muted: #6b6b7a;
+    --text-disabled: #4a4a5a;
+    
+    /* Bordes - Dark */
+    --border-color: rgba(0, 212, 255, 0.2);
+    --border-color-light: rgba(0, 212, 255, 0.1);
+    --border-color-dark: rgba(0, 212, 255, 0.3);
+}
+
+/* ============================================
+   2. LIGHT MODE (clase .light-mode)
+   ============================================ */
+.light-mode {
+    /* Colores principales (ajustados para light mode) */
+    --color-primary: #0066cc;
+    --color-primary-dark: #004499;
+    --color-primary-light: #3388dd;
+    --color-secondary: #9900cc;
+    --color-secondary-dark: #7700aa;
+    --color-secondary-light: #aa33dd;
+    --color-accent: #cc00cc;
+    --color-success: #00aa55;
+    --color-warning: #cc8800;
+    --color-error: #cc2952;
+    
+    /* Colores de fondo - Light */
+    --bg-primary: #f5f5f7;
+    --bg-secondary: #ffffff;
+    --bg-card: rgba(255, 255, 255, 0.95);
+    --bg-card-solid: #ffffff;
+    --bg-sidebar: rgba(255, 255, 255, 0.98);
+    --bg-header: rgba(255, 255, 255, 0.95);
+    --bg-light: #e8e8ec;
+    --bg-hover: rgba(0, 102, 204, 0.05);
+    
+    /* Colores de texto - Light */
+    --text-primary: #1a1a2e;
+    --text-secondary: #4a4a5a;
+    --text-muted: #8a8a9a;
+    --text-disabled: #b0b0c0;
+    
+    /* Bordes - Light */
+    --border-color: rgba(0, 102, 204, 0.2);
+    --border-color-light: rgba(0, 102, 204, 0.1);
+    --border-color-dark: rgba(0, 102, 204, 0.3);
+    
+    /* Sombras - Light (ajustadas) */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.12);
+    --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.15);
+    --shadow-glow: 0 0 20px rgba(0, 102, 204, 0.2);
+    --shadow-glow-sm: 0 0 10px rgba(0, 102, 204, 0.15);
+}
+
+/* ============================================
+   3. BOTÓN DE TOGGLE
+   ============================================ */
+.theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--space-2);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-base);
+    color: var(--text-secondary);
+}
+
+.theme-toggle:hover {
+    background: var(--bg-hover);
+    color: var(--color-primary);
+}
+
+.theme-toggle .icon-sun {
+    display: none;
+}
+
+.theme-toggle .icon-moon {
+    display: block;
+}
+
+.light-mode .theme-toggle .icon-sun {
+    display: block;
+}
+
+.light-mode .theme-toggle .icon-moon {
+    display: none;
+}
+
+/* ============================================
+   4. TRANSICIÓN SUAVE ENTRE MODOS
+   ============================================ */
+* {
+    transition: 
+        background-color var(--transition-base),
+        border-color var(--transition-base),
+        color var(--transition-base),
+        box-shadow var(--transition-base);
+}
+
+/* ============================================
+   5. AJUSTES ESPECÍFICOS PARA LIGHT MODE
+   ============================================ */
+.light-mode .lab-card {
+    background: var(--bg-card-solid);
+    border-color: var(--border-color);
+}
+
+.light-mode .lab-card:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+.light-mode .form-input,
+.light-mode .form-select,
+.light-mode .form-textarea {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: var(--border-color);
+}
+
+.light-mode .form-input:focus,
+.light-mode .form-select:focus,
+.light-mode .form-textarea:focus {
+    background: var(--bg-secondary);
+}
+
+.light-mode .search-box {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.light-mode .category-card {
+    background: var(--bg-card-solid);
+}
+
+.light-mode .card {
+    background: var(--bg-card-solid);
+}
+
+.light-mode .sidebar {
+    background: var(--bg-sidebar);
+}
+
+.light-mode .main-header {
+    background: var(--bg-header);
+}
+
+.light-mode .nav-link:hover {
+    background: var(--bg-hover);
+}
+
+.light-mode .nav-link.active {
+    background: rgba(0, 102, 204, 0.1);
+}
+
+/* ============================================
+   6. PREFERENCIA DEL SISTEMA (opcional)
+   ============================================ */
+@media (prefers-color-scheme: light) {
+    /* Esto aplica si el usuario tiene modo claro en el sistema */
+    /* Puedes comentar esta sección si prefieres control manual */
+    /*
+    :root:not(.light-mode):not(.dark-mode) {
+        --color-primary: #0066cc;
+        --bg-primary: #f5f5f7;
+        --bg-secondary: #ffffff;
+        --text-primary: #1a1a2e;
+        --text-secondary: #4a4a5a;
+    }
+    */
+}
+
+/* ============================================
+   7. GUARDAR PREFERENCIA DEL USUARIO
+   ============================================ */
+/* 
+   JavaScript para toggle:
+   
+   function toggleTheme() {
+       document.body.classList.toggle('light-mode');
+       const isLightMode = document.body.classList.contains('light-mode');
+       localStorage.setItem('axon_theme', isLightMode ? 'light' : 'dark');
+   }
+   
+   function loadTheme() {
+       const savedTheme = localStorage.getItem('axon_theme');
+       if (savedTheme === 'light') {
+           document.body.classList.add('light-mode');
+       }
+   }
+   
+   loadTheme();
+*/
+
+/* ============================================
+   8. ESTILOS PARA EL TOGGLE EN EL HEADER
+   ============================================ */
+.theme-toggle {
+    width: 40px;
+    height: 40px;
+    font-size: var(--text-xl);
+}
+
+.theme-toggle .icon-sun::before {
+    content: '☀️';
+}
+
+.theme-toggle .icon-moon::before {
+    content: '🌙';
+}
+
+/* ============================================
+   9. AJUSTES DE CONTRASTE PARA ACCESIBILIDAD
+   ============================================ */
+.light-mode .text-muted {
+    color: #6b6b7a;
+}
+
+.light-mode .border-color {
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .alert-success {
+    background: rgba(0, 170, 85, 0.1);
+}
+
+.light-mode .alert-warning {
+    background: rgba(204, 136, 0, 0.1);
+}
+
+.light-mode .alert-error {
+    background: rgba(204, 41, 82, 0.1);
+}
+
+.light-mode .alert-info {
+    background: rgba(0, 102, 204, 0.1);
+}

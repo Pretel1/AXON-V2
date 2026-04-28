@@ -1,0 +1,537 @@
+/* ============================================
+   AXON - ESTILOS GLOBALES
+   Cyberpunk Futurista 2026
+   Versión 2.0 - Mejorada
+   ============================================ */
+
+/* ============================================
+   1. VARIABLES GLOBALES (Design Tokens)
+   ============================================ */
+:root {
+    /* Colores principales - Neón Cyberpunk */
+    --color-primary: #00f5ff;
+    --color-primary-dark: #00b8c9;
+    --color-primary-light: #6effff;
+    --color-secondary: #ff00ff;
+    --color-secondary-dark: #cc00cc;
+    --color-secondary-light: #ff66ff;
+    --color-accent: #ffcc00;
+    --color-success: #00ff88;
+    --color-success-dark: #00cc6a;
+    --color-warning: #ffaa00;
+    --color-warning-dark: #cc8800;
+    --color-error: #ff3366;
+    --color-error-dark: #cc2952;
+    --color-purple: #9d00ff;
+    --color-cyan: #00e5ff;
+    
+    /* Colores de fondo - Oscuro premium */
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #05050a;
+    --bg-tertiary: #0f0f1a;
+    --bg-card: rgba(20, 20, 35, 0.95);
+    --bg-card-solid: #141423;
+    --bg-sidebar: rgba(5, 5, 10, 0.98);
+    --bg-header: rgba(5, 5, 10, 0.95);
+    --bg-light: #1a1a2e;
+    --bg-hover: rgba(0, 245, 255, 0.08);
+    --bg-glow: radial-gradient(circle at 50% 50%, rgba(0, 245, 255, 0.1) 0%, transparent 70%);
+    
+    /* Colores de texto */
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0c0;
+    --text-muted: #6b6b7a;
+    --text-disabled: #4a4a5a;
+    --text-glow: #ffffff;
+    
+    /* Colores de borde */
+    --border-color: rgba(0, 245, 255, 0.25);
+    --border-color-light: rgba(0, 245, 255, 0.12);
+    --border-color-dark: rgba(0, 245, 255, 0.4);
+    --border-glow: 0 0 10px rgba(0, 245, 255, 0.5);
+    
+    /* Espaciados (escala 4px) */
+    --space-0: 0;
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --space-20: 5rem;
+    --space-24: 6rem;
+    --space-32: 8rem;
+    
+    /* Alias de espaciados */
+    --space-xs: 0.5rem;
+    --space-sm: 1rem;
+    --space-md: 1.5rem;
+    --space-lg: 2rem;
+    --space-xl: 3rem;
+    --space-2xl: 4rem;
+    --space-3xl: 6rem;
+    
+    /* Tipografía */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    --font-mono: 'Courier New', 'SF Mono', 'Fira Code', monospace;
+    
+    /* Tamaños de fuente */
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+    --text-4xl: 2.25rem;
+    --text-5xl: 3rem;
+    --text-6xl: 3.75rem;
+    
+    /* Pesos de fuente */
+    --font-light: 300;
+    --font-regular: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+    
+    /* Alturas de línea */
+    --leading-none: 1;
+    --leading-tight: 1.25;
+    --leading-snug: 1.375;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.625;
+    --leading-loose: 2;
+    
+    /* Bordes */
+    --radius-none: 0;
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.25rem;
+    --radius-3xl: 1.5rem;
+    --radius-full: 9999px;
+    
+    /* Sombras */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
+    --shadow-glow: 0 0 30px rgba(0, 245, 255, 0.4);
+    --shadow-glow-sm: 0 0 15px rgba(0, 245, 255, 0.25);
+    --shadow-glow-pink: 0 0 30px rgba(255, 0, 255, 0.4);
+    --shadow-glow-purple: 0 0 30px rgba(157, 0, 255, 0.4);
+    --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    
+    /* Transiciones */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.4s ease;
+    --transition-slower: 0.6s ease;
+    
+    /* Z-index */
+    --z-negative: -1;
+    --z-elevate: 1;
+    --z-sticky: 100;
+    --z-header: 200;
+    --z-sidebar: 300;
+    --z-overlay: 350;
+    --z-modal: 400;
+    --z-popover: 500;
+    --z-toast: 600;
+    
+    /* Layout */
+    --sidebar-width: 280px;
+    --sidebar-width-collapsed: 80px;
+    --container-max: 1400px;
+    --container-padding: var(--space-6);
+}
+
+/* ============================================
+   2. RESET Y ESTILOS BASE MEJORADOS
+   ============================================ */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: var(--font-family);
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    background: linear-gradient(135deg, #0a0a0f 0%, #05050a 50%, #0a0a0f 100%);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Fondo animado con partículas */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(0, 245, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 0, 255, 0.08) 0%, transparent 50%),
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 2px, transparent 2px, transparent 8px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Tipografía */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: var(--font-bold);
+    line-height: var(--leading-tight);
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--color-primary) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+h1 { font-size: var(--text-5xl); }
+h2 { font-size: var(--text-4xl); }
+h3 { font-size: var(--text-2xl); }
+h4 { font-size: var(--text-xl); }
+h5 { font-size: var(--text-lg); }
+h6 { font-size: var(--text-base); }
+
+/* Enlaces con efecto neón */
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: all var(--transition-base);
+    position: relative;
+}
+
+a:not(.nav-link):hover {
+    color: var(--color-primary);
+    text-shadow: 0 0 8px rgba(0, 245, 255, 0.5);
+}
+
+/* Scrollbar personalizada mejorada */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, var(--color-primary-light), var(--color-secondary-light));
+}
+
+/* Selección de texto */
+::selection {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    color: var(--bg-primary);
+}
+
+/* ============================================
+   3. UTILIDADES GLOBALES MEJORADAS
+   ============================================ */
+
+/* Contenedores */
+.container {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 0 var(--container-padding);
+    width: 100%;
+}
+
+/* Efecto glassmorphism */
+.glass {
+    background: rgba(20, 20, 35, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+}
+
+/* Gradientes de texto */
+.text-gradient {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 50%, var(--color-accent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.text-glow {
+    text-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+}
+
+/* Animaciones de entrada */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes glowPulse {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(0, 245, 255, 0.6);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* ============================================
+   4. BOTÓN DE GOOGLE Y DIVISOR
+   ============================================ */
+
+/* Divisor "O" */
+.divider {
+    text-align: center;
+    margin: var(--space-6) 0;
+    position: relative;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: calc(50% - 35px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+}
+
+.divider::before {
+    left: 0;
+}
+
+.divider::after {
+    right: 0;
+}
+
+/* Botón de Google premium */
+.btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    width: 100%;
+    padding: var(--space-3) var(--space-6);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    color: var(--text-primary);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    margin-bottom: var(--space-4);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-google::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-google:hover::before {
+    left: 100%;
+}
+
+.btn-google:hover {
+    background: linear-gradient(135deg, rgba(0, 245, 255, 0.15) 0%, rgba(255, 0, 255, 0.1) 100%);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow-sm);
+    animation: glowPulse 2s infinite;
+}
+
+.btn-google:active {
+    transform: translateY(0);
+}
+
+.btn-google svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* ============================================
+   5. FORMULARIOS MEJORADOS
+   ============================================ */
+.form-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-8);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    animation: fadeInUp 0.5s ease;
+    transition: all var(--transition-base);
+}
+
+.form-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-glow);
+}
+
+.form-group {
+    margin-bottom: var(--space-5);
+}
+
+.form-label {
+    display: block;
+    margin-bottom: var(--space-2);
+    font-weight: var(--font-medium);
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    letter-spacing: 0.5px;
+}
+
+.form-label.required::after {
+    content: '*';
+    color: var(--color-error);
+    margin-left: var(--space-1);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    background: rgba(10, 10, 15, 0.8);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    color: var(--text-primary);
+    font-size: var(--text-base);
+    transition: all var(--transition-base);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-glow-sm);
+    background: rgba(10, 10, 15, 0.95);
+}
+
+/* Alertas mejoradas */
+.alert {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-4);
+    font-size: var(--text-sm);
+    animation: fadeIn 0.3s ease;
+    backdrop-filter: blur(4px);
+}
+
+.alert-success {
+    background: rgba(0, 255, 136, 0.1);
+    border-left: 3px solid var(--color-success);
+    color: var(--color-success);
+}
+
+.alert-error {
+    background: rgba(255, 51, 102, 0.1);
+    border-left: 3px solid var(--color-error);
+    color: var(--color-error);
+}
+
+/* Botones mejorados */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-6);
+    font-weight: var(--font-semibold);
+    font-size: var(--text-sm);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-base);
+    cursor: pointer;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: var(--bg-primary);
+    font-weight: var(--font-bold);
+    box-shadow: var(--shadow-glow-sm);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}

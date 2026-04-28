@@ -1,0 +1,127 @@
+<!-- pages/login.html — AXON-LAB v2.0 -->
+<div class="form-card fade-in" style="max-width:460px;margin:2rem auto;">
+    <div style="text-align:center;margin-bottom:1.5rem;">
+        <div style="font-size:2.5rem;">🔑</div>
+        <h2 style="margin:.5rem 0 .25rem;">Iniciar Sesión</h2>
+        <p style="color:#6b7280;font-size:.9rem;">Accede a tu cuenta de AXON-LAB</p>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Correo electrónico</label>
+        <input type="email" id="loginEmail" class="form-input" placeholder="ejemplo@correo.com" autocomplete="email" required>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" style="display:flex;justify-content:space-between;">
+            Contraseña
+            <a href="#" id="btnOlvide" style="font-weight:400;font-size:.82rem;">¿Olvidaste tu contraseña?</a>
+        </label>
+        <div style="position:relative;">
+            <input type="password" id="loginPassword" class="form-input" placeholder="Tu contraseña" autocomplete="current-password" required
+                   style="padding-right:2.8rem;">
+            <button id="togglePass" type="button" title="Mostrar/ocultar"
+                    style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.1rem;">👁️</button>
+        </div>
+    </div>
+
+    <button id="btnIngresar" class="btn btn-primary" style="width:100%;margin-top:.5rem;">🔐 Ingresar</button>
+    <div id="msgLogin" style="margin-top:.75rem;font-size:.9rem;min-height:1.2em;"></div>
+
+    <div style="display:flex;align-items:center;gap:.75rem;margin:1.25rem 0;">
+        <hr style="flex:1;border:none;border-top:1px solid #e5e7eb;">
+        <span style="color:#9ca3af;font-size:.8rem;">o continúa con</span>
+        <hr style="flex:1;border:none;border-top:1px solid #e5e7eb;">
+    </div>
+
+    <button id="googleLoginBtn" class="btn btn-outline" style="width:100%;display:flex;align-items:center;justify-content:center;gap:.5rem;">
+        <img src="https://www.google.com/favicon.ico" width="16" alt=""> Google
+    </button>
+
+    <p style="text-align:center;margin-top:1.25rem;font-size:.9rem;">
+        ¿No tienes cuenta? <a href="#" onclick="location.hash='registro';return false;">Regístrate aquí</a>
+    </p>
+</div>
+
+<!-- Modal recuperar contraseña -->
+<div id="modalRecuperar"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:16px;padding:2rem;width:min(380px,90%);box-shadow:0 20px 40px rgba(0,0,0,.2);">
+        <h3 style="margin-top:0;">📧 Recuperar contraseña</h3>
+        <p style="font-size:.88rem;color:#6b7280;">Ingresa tu correo y te enviaremos un link para restablecer tu contraseña.</p>
+        <input type="email" id="recuperarEmail" placeholder="correo@ejemplo.com"
+               style="width:100%;padding:.65rem .9rem;border:1px solid #d1d5db;border-radius:8px;box-sizing:border-box;margin-bottom:.75rem;">
+        <div style="display:flex;gap:.75rem;">
+            <button id="btnEnviarReset" class="btn btn-primary" style="flex:1;">Enviar link</button>
+            <button id="btnCerrarModal" class="btn btn-outline" style="flex:1;">Cancelar</button>
+        </div>
+        <div id="msgRecuperar" style="margin-top:.6rem;font-size:.88rem;min-height:1.2em;"></div>
+    </div>
+</div>
+
+<script type="module">
+import { iniciarSesion, iniciarSesionConGoogle, recuperarPassword, initAuth } from '../js/auth.js';
+
+const modal       = document.getElementById('modalRecuperar');
+const msgLogin    = document.getElementById('msgLogin');
+const msgRecuperar= document.getElementById('msgRecuperar');
+
+// ── Mostrar/ocultar contraseña ────────────────────────────────────────────────
+document.getElementById('togglePass').addEventListener('click', () => {
+    const inp = document.getElementById('loginPassword');
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+});
+
+// ── Submit login ──────────────────────────────────────────────────────────────
+document.getElementById('btnIngresar').addEventListener('click', async () => {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass  = document.getElementById('loginPassword').value;
+    const btn   = document.getElementById('btnIngresar');
+
+    if (!email || !pass) { msgLogin.innerHTML = '❌ Completa todos los campos.'; return; }
+
+    btn.disabled = true; btn.textContent = '⏳ Ingresando…';
+    const res = await iniciarSesion(email, pass);
+
+    if (res.success) {
+        msgLogin.innerHTML = '✅ ¡Bienvenido!';
+        await initAuth();
+        setTimeout(() => location.hash = 'inicio', 900);
+    } else {
+        msgLogin.innerHTML = '❌ ' + res.message;
+        btn.disabled = false; btn.textContent = '🔐 Ingresar';
+    }
+});
+
+// Permitir Enter en los inputs
+['loginEmail','loginPassword'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('btnIngresar').click();
+    });
+});
+
+// ── Google ────────────────────────────────────────────────────────────────────
+document.getElementById('googleLoginBtn').addEventListener('click', () => iniciarSesionConGoogle());
+
+// ── Modal recuperar ───────────────────────────────────────────────────────────
+document.getElementById('btnOlvide').addEventListener('click', e => {
+    e.preventDefault();
+    msgRecuperar.innerHTML = '';
+    modal.style.display = 'flex';
+});
+document.getElementById('btnCerrarModal').addEventListener('click', () => modal.style.display = 'none');
+modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
+
+document.getElementById('btnEnviarReset').addEventListener('click', async () => {
+    const email = document.getElementById('recuperarEmail').value.trim();
+    const btn   = document.getElementById('btnEnviarReset');
+    if (!email) { msgRecuperar.innerHTML = '❌ Ingresa tu correo.'; return; }
+
+    btn.disabled = true; btn.textContent = '⏳ Enviando…';
+    const res = await recuperarPassword(email);
+    msgRecuperar.innerHTML = res.success
+        ? '✅ ' + res.message
+        : '❌ ' + res.message;
+    btn.disabled = false; btn.textContent = 'Enviar link';
+    if (res.success) setTimeout(() => modal.style.display = 'none', 3000);
+});
+</script>

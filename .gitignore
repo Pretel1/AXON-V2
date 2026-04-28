@@ -1,0 +1,91 @@
+# ============================================
+# AXON - .gitignore
+# Archivos y carpetas que NO se suben a GitHub
+# ============================================
+
+# Dependencias
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build files
+dist/
+build/
+out/
+*.min.js
+*.min.css
+
+# IDE y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+
+# Variables de entorno
+.env
+.env.local
+.env.production
+
+# Firebase (archivos locales de configuración)
+.firebase/
+firebase-debug.log
+firebase-debug.*
+
+# Archivos temporales
+*.tmp
+*.temp
+.cache/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Secretos y claves
+*.pem
+*.key
+*.crt
+*.p12
+
+# Backups
+*.bak
+*.backup
+
+# Uploads locales (los archivos subidos están en Firebase Storage)
+uploads/
+temp_uploads/
+
+# Database local
+*.db
+*.sqlite
+*.sqlite3
+database/
+
+# Documentación local
+*.pdf
+*.docx
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+*.Trash
+
+# Archivos de prueba
+test/
+tests/
+*.test.js
+*.spec.js

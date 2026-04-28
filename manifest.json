@@ -1,0 +1,113 @@
+{
+  "name": "AXON - Laboratorios Académicos",
+  "short_name": "AXON",
+  "description": "Repositorio digital de laboratorios académicos para estudiantes y docentes",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#0a0a0f",
+  "background_color": "#0a0a0f",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "es",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "assets/img/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/img/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/img/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/img/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/img/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/img/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Laboratorios",
+      "short_name": "Labs",
+      "description": "Ver todos los laboratorios disponibles",
+      "url": "/#laboratorios",
+      "icons": [
+        {
+          "src": "assets/img/icon-lab.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Subir Laboratorio",
+      "short_name": "Subir",
+      "description": "Compartir un nuevo laboratorio",
+      "url": "/#subir",
+      "icons": [
+        {
+          "src": "assets/img/icon-upload.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Mi Progreso",
+      "short_name": "Progreso",
+      "description": "Ver mi progreso en los laboratorios",
+      "url": "/#perfil",
+      "icons": [
+        {
+          "src": "assets/img/icon-progress.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "assets/img/screenshot-1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Pantalla principal de AXON"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "prefer_related_applications": false,
+  "related_applications": []
+}

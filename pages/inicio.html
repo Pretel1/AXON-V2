@@ -1,0 +1,97 @@
+<!-- pages/inicio.html — AXON-LAB v2.0 -->
+<div class="page fade-in">
+
+    <!-- Hero -->
+    <section style="background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;padding:3rem 2rem;text-align:center;border-radius:0 0 24px 24px;margin-bottom:2rem;">
+        <h1 style="font-size:2.25rem;margin-bottom:.75rem;">⚡ AXON-LAB</h1>
+        <p style="font-size:1.1rem;opacity:.9;max-width:520px;margin:0 auto 1.5rem;">
+            Plataforma de laboratorios académicos. Accede, comparte y aprende.
+        </p>
+        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+            <button class="btn" style="background:#fff;color:#1565c0;font-weight:700;border:none;padding:.75rem 1.75rem;border-radius:8px;cursor:pointer;"
+                    onclick="location.hash='laboratorios'">📚 Ver laboratorios</button>
+            <button id="heroSubirBtn" class="btn" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4);padding:.75rem 1.75rem;border-radius:8px;cursor:pointer;display:none;"
+                    onclick="location.hash='subir'">📤 Subir recurso</button>
+        </div>
+    </section>
+
+    <!-- Stats rápidas -->
+    <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;padding:0 1rem;margin-bottom:2rem;">
+        <div class="stat-card" style="background:#fff;border-radius:12px;padding:1.25rem;text-align:center;border:1px solid #e5e7eb;box-shadow:0 2px 6px rgba(0,0,0,.04);">
+            <div style="font-size:1.75rem;">📚</div>
+            <div id="totalLabs" style="font-size:1.5rem;font-weight:700;color:#1565c0;">—</div>
+            <div style="font-size:.82rem;color:#6b7280;">Laboratorios</div>
+        </div>
+        <div class="stat-card" style="background:#fff;border-radius:12px;padding:1.25rem;text-align:center;border:1px solid #e5e7eb;box-shadow:0 2px 6px rgba(0,0,0,.04);">
+            <div style="font-size:1.75rem;">🏷️</div>
+            <div id="totalCats" style="font-size:1.5rem;font-weight:700;color:#1565c0;">—</div>
+            <div style="font-size:.82rem;color:#6b7280;">Categorías</div>
+        </div>
+        <div class="stat-card" style="background:#fff;border-radius:12px;padding:1.25rem;text-align:center;border:1px solid #e5e7eb;box-shadow:0 2px 6px rgba(0,0,0,.04);">
+            <div style="font-size:1.75rem;">⬇️</div>
+            <div id="totalDL" style="font-size:1.5rem;font-weight:700;color:#1565c0;">—</div>
+            <div style="font-size:.82rem;color:#6b7280;">Descargas</div>
+        </div>
+    </section>
+
+    <!-- Últimos laboratorios -->
+    <section style="padding:0 1rem 2rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+            <h2 style="margin:0;font-size:1.25rem;">🆕 Recientes</h2>
+            <a href="#" onclick="location.hash='laboratorios';return false;"
+               style="font-size:.88rem;color:#1565c0;text-decoration:none;">Ver todos →</a>
+        </div>
+        <div id="labs-grid"
+             style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.1rem;">
+            <p style="color:#9ca3af;grid-column:1/-1;text-align:center;padding:2rem;">Cargando…</p>
+        </div>
+    </section>
+
+</div>
+
+<style>
+.lab-card{background:#fff;border-radius:12px;border:1px solid #e5e7eb;padding:1.25rem;cursor:pointer;transition:.2s;box-shadow:0 2px 6px rgba(0,0,0,.04);}
+.lab-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.1);transform:translateY(-2px);}
+.lab-card__badge{display:inline-block;font-size:.75rem;background:#e3f2fd;color:#1565c0;padding:.2rem .65rem;border-radius:999px;margin-bottom:.6rem;font-weight:600;}
+.lab-card__title{font-size:1rem;font-weight:700;margin:.25rem 0 .5rem;line-height:1.35;}
+.lab-card__desc{font-size:.85rem;color:#6b7280;line-height:1.5;margin-bottom:.75rem;}
+.lab-card__meta{display:flex;gap:.75rem;font-size:.78rem;color:#9ca3af;flex-wrap:wrap;}
+</style>
+
+<script type="module">
+import { listLabs, getUniqueCategories } from '../js/labs.js';
+import { haySesionActiva }               from '../js/auth.js';
+
+// Mostrar botón Subir si hay sesión
+if (haySesionActiva()) {
+    const btn = document.getElementById('heroSubirBtn');
+    if (btn) btn.style.display = 'inline-block';
+}
+
+// Stats
+const { labs, total } = await listLabs({ limit: 100 });
+const cats = await getUniqueCategories();
+const totalDL = labs?.reduce((s, l) => s + (l.downloads || 0), 0) || 0;
+
+document.getElementById('totalLabs').textContent = total || labs?.length || 0;
+document.getElementById('totalCats').textContent = (cats?.length || 1) - 1; // excluir 'todos'
+document.getElementById('totalDL').textContent   = totalDL;
+
+// Grid recientes
+const grid = document.getElementById('labs-grid');
+const recientes = labs?.slice(0, 6) || [];
+if (!recientes.length) {
+    grid.innerHTML = '<p style="color:#9ca3af;grid-column:1/-1;text-align:center;padding:2rem;">No hay laboratorios aún. ¡Sé el primero en subir uno!</p>';
+} else {
+    grid.innerHTML = recientes.map(l => `
+        <div class="lab-card" onclick="location.hash='detalle?id=${l.id}'">
+            <span class="lab-card__badge">${l.category}</span>
+            <h3 class="lab-card__title">${l.title}</h3>
+            <p class="lab-card__desc">${(l.description||'').substring(0,110)}${(l.description||'').length>110?'…':''}</p>
+            <div class="lab-card__meta">
+                <span>⬇️ ${l.downloads}</span>
+                <span>📅 ${new Date(l.createdAt).toLocaleDateString('es-PE',{month:'short',day:'numeric'})}</span>
+            </div>
+        </div>`).join('');
+}
+</script>

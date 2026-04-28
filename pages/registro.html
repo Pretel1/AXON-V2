@@ -1,0 +1,169 @@
+<!-- pages/registro.html — AXON-LAB v2.0 -->
+<div class="form-card fade-in" id="registroContainer" style="max-width:500px;margin:2rem auto;">
+
+    <!-- PASO 1: Formulario -->
+    <div id="pasoRegistro">
+        <div style="text-align:center;margin-bottom:1.5rem;">
+            <div style="font-size:2.5rem;">📝</div>
+            <h2 style="margin:.5rem 0 .25rem;">Crear cuenta</h2>
+            <p style="color:#6b7280;font-size:.9rem;">Únete a AXON-LAB gratuitamente</p>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Nombre completo *</label>
+            <input type="text" id="regNombre" class="form-input" placeholder="Ej: Juan Pérez" required autocomplete="name">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Correo electrónico *</label>
+            <input type="email" id="regEmail" class="form-input" placeholder="ejemplo@correo.com" required autocomplete="email">
+            <small style="color:#6b7280;">📧 Te enviaremos un link de verificación</small>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Contraseña *</label>
+            <div style="position:relative;">
+                <input type="password" id="regPassword" class="form-input" placeholder="Mínimo 8 caracteres"
+                       oninput="checkStrength(this.value)" style="padding-right:2.8rem;" autocomplete="new-password">
+                <button type="button" onclick="togglePwd('regPassword')"
+                        style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;">👁️</button>
+            </div>
+            <!-- Barra de fortaleza -->
+            <div style="height:4px;background:#e5e7eb;border-radius:2px;margin:.4rem 0;">
+                <div id="strengthBar" style="height:100%;width:0%;border-radius:2px;transition:.3s;"></div>
+            </div>
+            <small id="strengthLabel" style="color:#9ca3af;font-size:.78rem;"></small>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Confirmar contraseña *</label>
+            <div style="position:relative;">
+                <input type="password" id="regConfirm" class="form-input" placeholder="Repite tu contraseña"
+                       style="padding-right:2.8rem;" autocomplete="new-password">
+                <button type="button" onclick="togglePwd('regConfirm')"
+                        style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;">👁️</button>
+            </div>
+        </div>
+
+        <button id="btnRegistrar" class="btn btn-primary" style="width:100%;">📝 Crear cuenta</button>
+        <div id="msgRegistro" style="margin-top:.75rem;font-size:.9rem;min-height:1.2em;"></div>
+
+        <div style="display:flex;align-items:center;gap:.75rem;margin:1.25rem 0;">
+            <hr style="flex:1;border:none;border-top:1px solid #e5e7eb;">
+            <span style="color:#9ca3af;font-size:.8rem;">o</span>
+            <hr style="flex:1;border:none;border-top:1px solid #e5e7eb;">
+        </div>
+
+        <button id="googleRegistroBtn" class="btn btn-outline" style="width:100%;display:flex;align-items:center;justify-content:center;gap:.5rem;">
+            <img src="https://www.google.com/favicon.ico" width="16" alt=""> Continuar con Google
+        </button>
+
+        <p style="text-align:center;margin-top:1.25rem;font-size:.9rem;">
+            ¿Ya tienes cuenta? <a href="#" onclick="location.hash='login';return false;">Inicia sesión</a>
+        </p>
+    </div>
+
+    <!-- PASO 2: Verificación enviada -->
+    <div id="pasoExito" style="display:none;text-align:center;padding:1rem 0;">
+        <div style="font-size:3.5rem;">📧</div>
+        <h2>¡Revisa tu correo!</h2>
+        <p>Hemos enviado un link de verificación a:</p>
+        <p><strong id="emailEnviado" style="color:#1565c0;"></strong></p>
+        <p style="font-size:.88rem;color:#6b7280;margin-top:1rem;">
+            Haz clic en el enlace del correo para activar tu cuenta.<br>
+            También revisa la carpeta de <em>spam</em>.
+        </p>
+        <button class="btn btn-primary" style="margin-top:1.5rem;" onclick="location.hash='login'">
+            🔐 Ir al login
+        </button>
+        <button id="btnReenviar" class="btn btn-outline" style="margin-top:.75rem;display:block;width:100%;">
+            🔄 Reenviar correo
+        </button>
+        <div id="msgReenvio" style="margin-top:.5rem;font-size:.88rem;"></div>
+    </div>
+
+    <!-- PASO 3: Registro directo (sin email confirm) -->
+    <div id="pasoDirecto" style="display:none;text-align:center;padding:1rem 0;">
+        <div style="font-size:3.5rem;">✅</div>
+        <h2>¡Cuenta creada!</h2>
+        <p>Tu cuenta está lista. Redirigiendo al inicio…</p>
+    </div>
+</div>
+
+<script type="module">
+import { registrarUsuario, iniciarSesionConGoogle, supabase } from '../js/auth.js';
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+window.togglePwd = (id) => {
+    const el = document.getElementById(id);
+    el.type = el.type === 'password' ? 'text' : 'password';
+};
+
+window.checkStrength = (val) => {
+    const bar   = document.getElementById('strengthBar');
+    const label = document.getElementById('strengthLabel');
+    let score = 0;
+    if (val.length >= 8)        score++;
+    if (/[A-Z]/.test(val))     score++;
+    if (/[0-9]/.test(val))     score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const configs = [
+        { w:'0%',   color:'#e5e7eb', text:'' },
+        { w:'25%',  color:'#ef4444', text:'Débil' },
+        { w:'50%',  color:'#f59e0b', text:'Regular' },
+        { w:'75%',  color:'#3b82f6', text:'Buena' },
+        { w:'100%', color:'#10b981', text:'Excelente' }
+    ];
+    const c = configs[score] || configs[0];
+    bar.style.width       = c.w;
+    bar.style.background  = c.color;
+    label.textContent     = c.text;
+    label.style.color     = c.color;
+};
+
+// ── Registro ──────────────────────────────────────────────────────────────────
+document.getElementById('btnRegistrar').addEventListener('click', async () => {
+    const nombre   = document.getElementById('regNombre').value.trim();
+    const email    = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const confirm  = document.getElementById('regConfirm').value;
+    const msg      = document.getElementById('msgRegistro');
+    const btn      = document.getElementById('btnRegistrar');
+
+    if (!nombre)              { msg.innerHTML = '❌ Ingresa tu nombre.'; return; }
+    if (!email)               { msg.innerHTML = '❌ Ingresa tu correo.'; return; }
+    if (password.length < 8)  { msg.innerHTML = '❌ La contraseña debe tener al menos 8 caracteres.'; return; }
+    if (password !== confirm) { msg.innerHTML = '❌ Las contraseñas no coinciden.'; return; }
+
+    btn.disabled = true; btn.textContent = '⏳ Creando cuenta…';
+
+    const res = await registrarUsuario(nombre, email, password);
+
+    if (res.success) {
+        if (res.needsVerification) {
+            document.getElementById('pasoRegistro').style.display = 'none';
+            document.getElementById('emailEnviado').textContent   = email;
+            document.getElementById('pasoExito').style.display    = 'block';
+        } else {
+            document.getElementById('pasoRegistro').style.display = 'none';
+            document.getElementById('pasoDirecto').style.display  = 'block';
+            setTimeout(() => location.hash = 'inicio', 1800);
+        }
+    } else {
+        msg.innerHTML   = '❌ ' + res.message;
+        btn.disabled    = false;
+        btn.textContent = '📝 Crear cuenta';
+    }
+});
+
+// ── Reenviar verificación ─────────────────────────────────────────────────────
+document.getElementById('btnReenviar').addEventListener('click', async () => {
+    const email = document.getElementById('emailEnviado').textContent;
+    const msgR  = document.getElementById('msgReenvio');
+    const btn   = document.getElementById('btnReenviar');
+    btn.disabled = true;
+    const { error } = await supabase.auth.resend({ type: 'signup', email });
+    msgR.innerHTML  = error ? '❌ ' + error.message : '✅ Correo reenviado.';
+    setTimeout(() => { btn.disabled = false; }, 30000); // cooldown 30s
+});
+
+// ── Google ────────────────────────────────────────────────────────────────────
+document.getElementById('googleRegistroBtn').addEventListener('click', () => iniciarSesionConGoogle());
+</script>

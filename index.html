@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>AXON-LAB — Laboratorios Académicos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/estilo.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/componentes.css">
+    <link rel="stylesheet" href="css/animaciones.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <style>
+        /* Loader inicial */
+        #initialLoader {
+            position:fixed;inset:0;background:#fff;display:flex;
+            flex-direction:column;align-items:center;justify-content:center;
+            z-index:9999;transition:opacity .4s;
+        }
+        #initialLoader.hidden { opacity:0;pointer-events:none; }
+        .init-logo { font-size:3rem;font-weight:800;color:#1565c0;margin-bottom:.5rem; }
+        .init-sub  { color:#6b7280;font-size:.9rem;margin-bottom:1.5rem; }
+        .init-spin { width:32px;height:32px;border:3px solid #e5e7eb;
+                     border-top-color:#1565c0;border-radius:50%;animation:spin 1s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        /* Dark mode toggle */
+        #darkModeToggle {
+            background:none;border:1px solid rgba(255,255,255,.25);
+            border-radius:8px;padding:.3rem .6rem;cursor:pointer;font-size:1rem;
+            color:inherit;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Loader inicial ─────────────────────────────────────────────────────── -->
+<div id="initialLoader">
+    <div class="init-logo">⚡ AXON</div>
+    <div class="init-sub">Laboratorios Académicos</div>
+    <div class="init-spin"></div>
+</div>
+
+<div class="app-container">
+
+    <!-- ── Sidebar ───────────────────────────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar__header">
+            <div class="sidebar__logo">⚡ AXON</div>
+            <div class="sidebar__subtitle">Laboratorios Académicos</div>
+        </div>
+        <nav class="sidebar__nav">
+            <a href="#inicio"       class="nav-link active" data-page="inicio">
+                <span class="icon">🏠</span><span>Inicio</span>
+            </a>
+            <a href="#laboratorios" class="nav-link" data-page="laboratorios">
+                <span class="icon">📚</span><span>Laboratorios</span>
+            </a>
+            <a href="#categorias"   class="nav-link" data-page="categorias">
+                <span class="icon">🏷️</span><span>Categorías</span>
+            </a>
+            <a href="#subir"        class="nav-link" data-page="subir" id="subirNavLink" style="display:none;">
+                <span class="icon">📤</span><span>Subir Laboratorio</span>
+            </a>
+
+            <div class="sidebar__divider"></div>
+
+            <a href="#registro" class="nav-link" data-page="registro" id="registroNavLink">
+                <span class="icon">📝</span><span>Registrarse</span>
+            </a>
+            <a href="#login"    class="nav-link" data-page="login" id="loginNavLink">
+                <span class="icon">🔑</span><span>Iniciar Sesión</span>
+            </a>
+            <a href="#"         class="nav-link" id="logoutNavLink" style="display:none;">
+                <span class="icon">🚪</span><span>Cerrar Sesión</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- ── Overlay móvil ─────────────────────────────────────────────────── -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ── Contenido principal ───────────────────────────────────────────── -->
+    <main class="main-content">
+        <header class="main-header">
+            <button class="menu-toggle" id="menuToggle">☰</button>
+            <div class="user-info" style="display:flex;align-items:center;gap:.75rem;">
+                <span style="font-size:.9rem;">Hola, <strong id="userName">Invitado</strong></span>
+                <div class="user-avatar" id="userAvatar">👤</div>
+                <button id="darkModeToggle" title="Cambiar tema">🌙</button>
+            </div>
+        </header>
+
+        <!-- Contenedor dinámico SPA -->
+        <div id="page-content" class="page-content">
+            <div style="text-align:center;padding:4rem;">
+                <div class="loader-spinner" style="margin:0 auto;"></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- ── Script principal (único punto de entrada) ─────────────────────────── -->
+<script type="module" src="js/app.js"></script>
+
+<script>
+// Ocultar loader inicial cuando la app esté lista
+document.addEventListener('DOMContentLoaded', () => {
+    const loader = document.getElementById('initialLoader');
+    // Se oculta desde app.js, pero por seguridad también aquí a los 3s
+    setTimeout(() => loader?.classList.add('hidden'), 3000);
+});
+</script>
+</body>
+</html>

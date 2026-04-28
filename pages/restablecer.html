@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restablecer Contraseña — AXON-LAB</title>
+    <link rel="stylesheet" href="../css/estilo.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/componentes.css">
+    <style>
+        body { min-height:100vh; display:flex; align-items:center; justify-content:center; background:#f3f4f6; }
+        .reset-card { background:#fff; border-radius:16px; padding:2.5rem; max-width:440px; width:100%; box-shadow:0 10px 30px rgba(0,0,0,.1); }
+        h1 { font-size:1.5rem; margin-bottom:.25rem; }
+        p.sub { color:#6b7280; font-size:.9rem; margin-bottom:1.5rem; }
+        label { display:block; font-size:.85rem; font-weight:600; margin-bottom:.3rem; color:#374151; }
+        input[type=password] { width:100%; padding:.65rem .9rem; border:1px solid #d1d5db; border-radius:8px; font-size:.95rem; box-sizing:border-box; margin-bottom:1rem; }
+        .req-list { list-style:none; padding:0; font-size:.82rem; color:#9ca3af; margin-bottom:1rem; }
+        .req-list li { margin:.2rem 0; transition:.3s; }
+        .req-ok { color:#059669 !important; text-decoration:line-through; }
+        .btn-main { width:100%; padding:.75rem; background:#1565c0; color:#fff; border:none; border-radius:8px; font-size:1rem; cursor:pointer; }
+        .btn-main:disabled { opacity:.5; cursor:not-allowed; }
+        .msg { margin-top:.75rem; font-size:.9rem; }
+        .estado { display:none; }
+        .spinner { border:3px solid #e5e7eb; border-top-color:#1565c0; border-radius:50%; width:36px; height:36px; animation:spin 1s linear infinite; margin:1rem auto; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+    </style>
+</head>
+<body>
+<div class="reset-card">
+
+    <!-- Estado: cargando -->
+    <div id="estadoCargando" class="estado" style="display:block; text-align:center;">
+        <div class="spinner"></div>
+        <p>Verificando enlace…</p>
+    </div>
+
+    <!-- Estado: formulario -->
+    <div id="estadoFormulario" class="estado">
+        <h1>🔐 Nueva contraseña</h1>
+        <p class="sub">Elige una contraseña segura para tu cuenta.</p>
+
+        <label>Nueva contraseña</label>
+        <input type="password" id="nuevaPassword" placeholder="Mínimo 8 caracteres" oninput="validar(this.value)">
+
+        <ul class="req-list">
+            <li id="reqLen">✗ Al menos 8 caracteres</li>
+            <li id="reqMay">✗ Al menos una mayúscula</li>
+            <li id="reqNum">✗ Al menos un número</li>
+        </ul>
+
+        <label>Confirmar contraseña</label>
+        <input type="password" id="confirmarPassword" placeholder="Repite la contraseña">
+
+        <button class="btn-main" id="btnGuardar" onclick="guardar()">Guardar contraseña</button>
+        <div class="msg" id="msgReset"></div>
+    </div>
+
+    <!-- Estado: éxito -->
+    <div id="estadoExito" class="estado" style="text-align:center;">
+        <div style="font-size:3rem;">✅</div>
+        <h2>¡Contraseña actualizada!</h2>
+        <p>Ya puedes iniciar sesión con tu nueva contraseña.</p>
+        <button class="btn-main" onclick="location.href='../index.html#login'">Ir al login</button>
+    </div>
+
+    <!-- Estado: error / link inválido -->
+    <div id="estadoError" class="estado" style="text-align:center;">
+        <div style="font-size:3rem;">❌</div>
+        <h2>Enlace inválido o expirado</h2>
+        <p>Solicita un nuevo correo de recuperación.</p>
+        <button class="btn-main" onclick="location.href='../index.html#login'">Volver al login</button>
+    </div>
+
+</div>
+
+<script type="module">
+import { supabase }             from '../js/supabase-config.js';
+import { restablecerPassword }  from '../js/auth.js';
+
+const show = (id) => {
+    ['estadoCargando','estadoFormulario','estadoExito','estadoError']
+        .forEach(s => document.getElementById(s).style.display = s === id ? 'block' : 'none');
+};
+
+// ── Detectar sesión de recovery desde URL (Supabase la inyecta en el hash) ──
+async function init() {
+    // Supabase agrega #access_token=...&type=recovery al redirigir
+    const hash = window.location.hash;
+    if (hash.includes('type=recovery') || hash.includes('access_token')) {
+        // Supabase client la procesa automáticamente (detectSessionInUrl:true)
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) { show('estadoFormulario'); return; }
+    }
+
+    // Fallback: parámetros en query string (flujo antiguo)
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('type') === 'recovery' || params.get('access_token')) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) { show('estadoFormulario'); return; }
+    }
+
+    // Sin token válido
+    show('estadoError');
+}
+
+init();
+
+// ── Validación visual ─────────────────────────────────────────────────────────
+window.validar = function(val) {
+    const set = (id, ok) => {
+        const el = document.getElementById(id);
+        el.classList.toggle('req-ok', ok);
+        el.textContent = (ok ? '✓ ' : '✗ ') + el.textContent.slice(2);
+    };
+    set('reqLen', val.length >= 8);
+    set('reqMay', /[A-Z]/.test(val));
+    set('reqNum', /\d/.test(val));
+};
+
+// ── Guardar nueva contraseña ──────────────────────────────────────────────────
+window.guardar = async function() {
+    const nueva     = document.getElementById('nuevaPassword').value;
+    const confirmar = document.getElementById('confirmarPassword').value;
+    const msg       = document.getElementById('msgReset');
+    const btn       = document.getElementById('btnGuardar');
+
+    if (nueva.length < 8)     { msg.innerHTML = '❌ Mínimo 8 caracteres.'; return; }
+    if (!/[A-Z]/.test(nueva)) { msg.innerHTML = '❌ Necesita al menos una mayúscula.'; return; }
+    if (!/\d/.test(nueva))    { msg.innerHTML = '❌ Necesita al menos un número.'; return; }
+    if (nueva !== confirmar)  { msg.innerHTML = '❌ Las contraseñas no coinciden.'; return; }
+
+    btn.disabled = true; btn.textContent = 'Guardando…';
+
+    const res = await restablecerPassword(nueva);
+    if (res.success) {
+        show('estadoExito');
+    } else {
+        msg.innerHTML = '❌ ' + res.message;
+        btn.disabled = false; btn.textContent = 'Guardar contraseña';
+    }
+};
+</script>
+</body>
+</html>

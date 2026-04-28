@@ -1,0 +1,302 @@
+<!-- pages/subir.html — AXON-LAB v2.0 | Upload archivos + enlaces externos -->
+<div class="container fade-in" style="max-width:680px;margin:0 auto;padding:1rem;">
+
+    <div class="form-card">
+        <div style="text-align:center;margin-bottom:2rem;">
+            <h2>📤 Subir Laboratorio</h2>
+            <p style="color:var(--text-muted,#6b7280);">Comparte recursos con la comunidad</p>
+        </div>
+
+        <!-- Alerta de usuario -->
+        <div id="userInfo" style="display:none;background:#e8f5e9;padding:10px 14px;border-radius:8px;margin-bottom:1rem;">
+            ✅ Subiendo como: <strong id="userEmailDisplay"></strong>
+        </div>
+        <div id="noAuthMsg" style="display:none;background:#fff3cd;padding:10px 14px;border-radius:8px;margin-bottom:1rem;text-align:center;">
+            ⚠️ Debes <a href="#" onclick="location.hash='login'">iniciar sesión</a> para subir recursos.
+        </div>
+
+        <!-- TABS -->
+        <div style="display:flex;gap:1rem;margin-bottom:1.5rem;border-bottom:2px solid #e5e7eb;padding-bottom:0.5rem;">
+            <button id="tabArchivo" class="tab-btn tab-active" onclick="switchTab('archivo')">📄 Archivo</button>
+            <button id="tabEnlace"  class="tab-btn"            onclick="switchTab('enlace')">🔗 Enlace externo</button>
+        </div>
+
+        <style>
+            .tab-btn { background:none;border:none;padding:0.4rem 1rem;cursor:pointer;font-size:0.9rem;border-radius:6px;color:#6b7280;font-weight:500; }
+            .tab-active { background:#e3f2fd;color:#1565c0; }
+            input,textarea,select { width:100%;padding:0.6rem 0.8rem;border:1px solid #d1d5db;border-radius:8px;font-size:0.95rem;box-sizing:border-box;margin-bottom:1rem; }
+            textarea { min-height:90px;resize:vertical; }
+            .btn-primary { background:#1565c0;color:#fff;border:none;padding:0.7rem 1.5rem;border-radius:8px;cursor:pointer;font-size:1rem;width:100%; }
+            .btn-primary:disabled { opacity:.5;cursor:not-allowed; }
+            #msgSubir { margin-top:0.75rem;font-size:0.9rem;min-height:1.2em; }
+            .tag-input-wrap { display:flex;gap:0.5rem;flex-wrap:wrap;border:1px solid #d1d5db;border-radius:8px;padding:0.4rem;margin-bottom:1rem; }
+            .tag-chip { background:#e3f2fd;color:#1565c0;border-radius:999px;padding:2px 10px;font-size:0.82rem;display:flex;align-items:center;gap:4px; }
+            .tag-chip button { background:none;border:none;cursor:pointer;font-size:0.75rem;color:#1565c0; }
+            .file-drop { border:2px dashed #d1d5db;border-radius:10px;padding:1.5rem;text-align:center;cursor:pointer;transition:.2s;margin-bottom:1rem; }
+            .file-drop.drag-over { border-color:#1565c0;background:#e3f2fd20; }
+            .progress-bar { height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden;margin-bottom:1rem;display:none; }
+            .progress-fill { height:100%;background:#1565c0;width:0%;transition:width .3s; }
+            .url-preview { font-size:0.82rem;color:#059669;margin-top:-0.5rem;margin-bottom:0.5rem;word-break:break-all; }
+        </style>
+
+        <!-- ── FORMULARIO ARCHIVO ── -->
+        <div id="panelArchivo">
+            <label>Título *</label>
+            <input id="labNombre" placeholder="Ej: Laboratorio de Subnetting IPv4" required>
+
+            <label>Descripción *</label>
+            <textarea id="labDescripcion" placeholder="Describe brevemente el contenido..." required></textarea>
+
+            <label>Categoría *</label>
+            <select id="labCategoria" required>
+                <option value="">— Selecciona —</option>
+                <option>Programación</option>
+                <option>Seguridad</option>
+                <option>Redes</option>
+                <option>IA</option>
+                <option>Bases de datos</option>
+                <option>Web</option>
+                <option>Otro</option>
+            </select>
+
+            <label>Tags (opcional)</label>
+            <div class="tag-input-wrap" id="tagWrap">
+                <input id="tagInput" placeholder="Escribe un tag y presiona Enter"
+                       style="border:none;outline:none;flex:1;min-width:100px;margin:0;padding:0.2rem 0.4rem;"
+                       onkeydown="addTag(event)">
+            </div>
+
+            <label>Archivo *</label>
+            <div class="file-drop" id="fileDrop"
+                 ondragover="fileDragOver(event)" ondragleave="fileDragLeave(event)" ondrop="fileDrop(event)"
+                 onclick="document.getElementById('labArchivo').click()">
+                <div id="fileDropText">📁 Arrastra tu archivo aquí o <u>haz clic para seleccionar</u></div>
+                <div id="fileInfo" style="display:none;font-weight:600;color:#1565c0;"></div>
+            </div>
+            <input type="file" id="labArchivo" style="display:none;"
+                   accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,.rar,.py,.ipynb,.txt,.csv,.xlsx,.mp4,.jpg,.jpeg,.png">
+
+            <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+
+            <small style="display:block;margin-bottom:1rem;color:#9ca3af;">
+                Formatos: PDF, Word, PPT, ZIP, Python, Jupyter, imágenes, vídeo. Máx. 50 MB.
+            </small>
+
+            <button class="btn-primary" id="btnSubir" onclick="submitArchivo()">📤 Subir laboratorio</button>
+        </div>
+
+        <!-- ── FORMULARIO ENLACE ── -->
+        <div id="panelEnlace" style="display:none;">
+            <label>Título *</label>
+            <input id="linkNombre" placeholder="Ej: Guía de laboratorio en OneDrive" required>
+
+            <label>Descripción *</label>
+            <textarea id="linkDescripcion" placeholder="Describe el contenido del enlace..." required></textarea>
+
+            <label>Categoría *</label>
+            <select id="linkCategoria" required>
+                <option value="">— Selecciona —</option>
+                <option>Programación</option>
+                <option>Seguridad</option>
+                <option>Redes</option>
+                <option>IA</option>
+                <option>Bases de datos</option>
+                <option>Web</option>
+                <option>Otro</option>
+            </select>
+
+            <label>URL del recurso *</label>
+            <input id="linkURL" type="url" placeholder="https://1drv.ms/... o https://drive.google.com/..."
+                   oninput="previewURL(this.value)">
+            <div class="url-preview" id="urlPreview"></div>
+
+            <label>Tags (opcional)</label>
+            <div class="tag-input-wrap" id="tagWrapLink">
+                <input id="tagInputLink" placeholder="Escribe un tag y presiona Enter"
+                       style="border:none;outline:none;flex:1;min-width:100px;margin:0;padding:0.2rem 0.4rem;"
+                       onkeydown="addTagLink(event)">
+            </div>
+
+            <button class="btn-primary" id="btnLink" onclick="submitEnlace()">🔗 Guardar enlace</button>
+        </div>
+
+        <div id="msgSubir"></div>
+    </div>
+</div>
+
+<script type="module">
+import { uploadLab, saveLinkLab, validarURL, detectarTipoEnlace, formatBytes } from '../js/labs.js';
+import { initAuth }                                                             from '../js/auth.js';
+
+// ── Auth guard ────────────────────────────────────────────────────────────────
+const user = await initAuth();
+if (!user) {
+    document.getElementById('noAuthMsg').style.display = 'block';
+    document.getElementById('panelArchivo').style.opacity  = '0.3';
+    document.getElementById('panelEnlace').style.opacity   = '0.3';
+    document.getElementById('btnSubir').disabled = true;
+    document.getElementById('btnLink').disabled  = true;
+} else {
+    document.getElementById('userInfo').style.display = 'block';
+    document.getElementById('userEmailDisplay').textContent = user.email;
+}
+
+// ── Tags ──────────────────────────────────────────────────────────────────────
+window._tags     = [];
+window._tagsLink = [];
+
+window.addTag = function(e) {
+    if (e.key !== 'Enter' && e.key !== ',') return;
+    e.preventDefault();
+    const val = e.target.value.trim().toLowerCase();
+    if (val && !window._tags.includes(val) && window._tags.length < 8) {
+        window._tags.push(val);
+        renderTags();
+    }
+    e.target.value = '';
+};
+window.addTagLink = function(e) {
+    if (e.key !== 'Enter' && e.key !== ',') return;
+    e.preventDefault();
+    const val = e.target.value.trim().toLowerCase();
+    if (val && !window._tagsLink.includes(val) && window._tagsLink.length < 8) {
+        window._tagsLink.push(val);
+        renderTagsLink();
+    }
+    e.target.value = '';
+};
+
+function renderTags() {
+    const wrap = document.getElementById('tagWrap');
+    wrap.querySelectorAll('.tag-chip').forEach(c => c.remove());
+    window._tags.forEach((t, i) => {
+        const chip = document.createElement('span');
+        chip.className = 'tag-chip';
+        chip.innerHTML = `${t} <button onclick="removeTag(${i})">✕</button>`;
+        wrap.insertBefore(chip, document.getElementById('tagInput'));
+    });
+}
+function renderTagsLink() {
+    const wrap = document.getElementById('tagWrapLink');
+    wrap.querySelectorAll('.tag-chip').forEach(c => c.remove());
+    window._tagsLink.forEach((t, i) => {
+        const chip = document.createElement('span');
+        chip.className = 'tag-chip';
+        chip.innerHTML = `${t} <button onclick="removeTagLink(${i})">✕</button>`;
+        wrap.insertBefore(chip, document.getElementById('tagInputLink'));
+    });
+}
+window.removeTag     = (i) => { window._tags.splice(i, 1);     renderTags(); };
+window.removeTagLink = (i) => { window._tagsLink.splice(i, 1); renderTagsLink(); };
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+window.switchTab = function(tab) {
+    document.getElementById('panelArchivo').style.display = tab === 'archivo' ? '' : 'none';
+    document.getElementById('panelEnlace').style.display  = tab === 'enlace'  ? '' : 'none';
+    document.getElementById('tabArchivo').className = 'tab-btn' + (tab === 'archivo' ? ' tab-active' : '');
+    document.getElementById('tabEnlace').className  = 'tab-btn' + (tab === 'enlace'  ? ' tab-active' : '');
+};
+
+// ── Drag & Drop ───────────────────────────────────────────────────────────────
+let selectedFile = null;
+
+window.fileDragOver  = (e) => { e.preventDefault(); document.getElementById('fileDrop').classList.add('drag-over'); };
+window.fileDragLeave = ()  => { document.getElementById('fileDrop').classList.remove('drag-over'); };
+window.fileDrop      = (e) => {
+    e.preventDefault();
+    document.getElementById('fileDrop').classList.remove('drag-over');
+    const f = e.dataTransfer.files[0];
+    if (f) setFile(f);
+};
+
+document.getElementById('labArchivo').addEventListener('change', (e) => {
+    if (e.target.files[0]) setFile(e.target.files[0]);
+});
+
+function setFile(f) {
+    selectedFile = f;
+    const sizeMB = (f.size / (1024*1024)).toFixed(1);
+    document.getElementById('fileDropText').style.display = 'none';
+    const info = document.getElementById('fileInfo');
+    info.style.display = 'block';
+    info.textContent = `✅ ${f.name} (${sizeMB} MB)`;
+}
+
+// ── URL Preview ───────────────────────────────────────────────────────────────
+window.previewURL = function(url) {
+    const prev = document.getElementById('urlPreview');
+    if (!url) { prev.textContent = ''; return; }
+    if (validarURL(url)) {
+        const tipo = detectarTipoEnlace(url);
+        const icons = { video:'🎬', onedrive:'☁️', 'google-drive':'📁', dropbox:'📦', enlace:'🔗' };
+        prev.textContent = `${icons[tipo]||'🔗'} Detectado: ${tipo} — URL válida ✅`;
+        prev.style.color = '#059669';
+    } else {
+        prev.textContent = '❌ URL no válida';
+        prev.style.color = '#dc2626';
+    }
+};
+
+// ── Submit Archivo ────────────────────────────────────────────────────────────
+window.submitArchivo = async function() {
+    if (!user) return;
+    const msg  = document.getElementById('msgSubir');
+    const btn  = document.getElementById('btnSubir');
+    const pb   = document.getElementById('progressBar');
+    const fill = document.getElementById('progressFill');
+
+    const title = document.getElementById('labNombre').value.trim();
+    const desc  = document.getElementById('labDescripcion').value.trim();
+    const cat   = document.getElementById('labCategoria').value;
+
+    if (!title)       { msg.innerHTML = '❌ Ingresa un título.';       return; }
+    if (!desc)        { msg.innerHTML = '❌ Ingresa una descripción.'; return; }
+    if (!cat)         { msg.innerHTML = '❌ Selecciona una categoría.';return; }
+    if (!selectedFile){ msg.innerHTML = '❌ Selecciona un archivo.';   return; }
+    if (selectedFile.size > 50*1024*1024) { msg.innerHTML = '❌ Archivo mayor a 50 MB.'; return; }
+
+    btn.disabled = true; btn.textContent = '⏳ Subiendo...';
+    pb.style.display = 'block'; fill.style.width = '30%';
+
+    const res = await uploadLab(selectedFile, title, desc, cat, window._tags);
+    fill.style.width = '100%';
+
+    if (res.success) {
+        msg.innerHTML = '✅ ¡Laboratorio subido correctamente!';
+        setTimeout(() => location.hash = `detalle?id=${res.lab.id}`, 1400);
+    } else {
+        msg.innerHTML = '❌ ' + res.error;
+        btn.disabled = false; btn.textContent = '📤 Subir laboratorio';
+        pb.style.display = 'none';
+    }
+};
+
+// ── Submit Enlace ─────────────────────────────────────────────────────────────
+window.submitEnlace = async function() {
+    if (!user) return;
+    const msg = document.getElementById('msgSubir');
+    const btn = document.getElementById('btnLink');
+
+    const title = document.getElementById('linkNombre').value.trim();
+    const desc  = document.getElementById('linkDescripcion').value.trim();
+    const cat   = document.getElementById('linkCategoria').value;
+    const url   = document.getElementById('linkURL').value.trim();
+
+    if (!title) { msg.innerHTML = '❌ Ingresa un título.';       return; }
+    if (!desc)  { msg.innerHTML = '❌ Ingresa una descripción.'; return; }
+    if (!cat)   { msg.innerHTML = '❌ Selecciona una categoría.';return; }
+    if (!url || !validarURL(url)) { msg.innerHTML = '❌ Ingresa una URL válida.'; return; }
+
+    btn.disabled = true; btn.textContent = '⏳ Guardando...';
+
+    const res = await saveLinkLab(url, title, desc, cat, window._tagsLink);
+
+    if (res.success) {
+        msg.innerHTML = '✅ ¡Enlace guardado correctamente!';
+        setTimeout(() => location.hash = `detalle?id=${res.lab.id}`, 1400);
+    } else {
+        msg.innerHTML = '❌ ' + res.error;
+        btn.disabled = false; btn.textContent = '🔗 Guardar enlace';
+    }
+};
+</script>
