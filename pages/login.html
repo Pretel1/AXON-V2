@@ -79,6 +79,8 @@
             var res = await window.iniciarSesion(email, pass);
             if (res.success) {
                 msgLogin.innerHTML = '✅ ¡Bienvenido!';
+                // ✅ SOLUCIÓN: Ocultar loader + ir a inicio
+                window.hideInitialLoader?.();
                 setTimeout(function() { location.hash = 'inicio'; }, 900);
             } else {
                 msgLogin.innerHTML = '❌ ' + res.message;
