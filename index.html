@@ -2,96 +2,42 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <base href="/AXON-V2/">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="AXON-LAB — Plataforma de laboratorios académicos interactivos. Comparte y descarga recursos educativos.">
-    <meta name="theme-color" content="#1565c0">
     <title>AXON-LAB — Laboratorios Académicos</title>
-    
-    <!-- Favicons -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- CSS (orden optimizado) -->
     <link rel="stylesheet" href="css/estilo.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/componentes.css">
     <link rel="stylesheet" href="css/animaciones.css">
     <link rel="stylesheet" href="css/dark-mode.css">
-    
     <style>
-        /* ── Loader inicial optimizado ── */
+        /* Loader inicial */
         #initialLoader {
-            position:fixed;inset:0;background:var(--bg-primary,#fff);display:flex;
+            position:fixed;inset:0;background:#fff;display:flex;
             flex-direction:column;align-items:center;justify-content:center;
-            z-index:9999;transition:opacity .4s ease-out;
+            z-index:9999;transition:opacity .4s;
         }
-        #initialLoader.hidden { 
-            opacity:0;pointer-events:none; 
-        }
-        .init-logo { 
-            font-size:clamp(2rem,5vw,3.5rem); 
-            font-weight:800; 
-            background:linear-gradient(135deg,#1565c0,#1976d2);
-            -webkit-background-clip:text;
-            -webkit-text-fill-color:transparent;
-            background-clip:text;
-            margin-bottom:.75rem; 
-            animation:fadeInUp 0.8s ease-out;
-        }
-        .init-sub { 
-            color:var(--text-muted,#6b7280); 
-            font-size:clamp(.85rem,2vw,1rem); 
-            margin-bottom:2rem;
-            animation:fadeInUp 0.8s ease-out .2s both;
-        }
-        .init-spin { 
-            width:clamp(28px,8vw,40px); 
-            height:clamp(28px,8vw,40px); 
-            border:3px solid var(--border-color,#e5e7eb);
-            border-top-color:var(--primary,#1565c0); 
-            border-radius:50%; 
-            animation:spin 1s linear infinite;
-        }
+        #initialLoader.hidden { opacity:0;pointer-events:none; }
+        .init-logo { font-size:3rem;font-weight:800;color:#1565c0;margin-bottom:.5rem; }
+        .init-sub  { color:#6b7280;font-size:.9rem;margin-bottom:1.5rem; }
+        .init-spin { width:32px;height:32px;border:3px solid #e5e7eb;
+                     border-top-color:#1565c0;border-radius:50%;animation:spin 1s linear infinite; }
         @keyframes spin { to { transform:rotate(360deg); } }
-        @keyframes fadeInUp {
-            from { opacity:0; transform:translateY(20px); }
-            to { opacity:1; transform:translateY(0); }
-        }
 
-        /* ── Dark mode toggle mejorado ── */
+        /* Dark mode toggle */
         #darkModeToggle {
-            background:var(--glass-bg,rgba(255,255,255,.1));
-            backdrop-filter:blur(10px);
-            border:1px solid var(--border-color,rgba(255,255,255,.25));
-            border-radius:12px;
-            padding:.4rem .8rem;
-            cursor:pointer;
-            font-size:1.1rem;
-            transition:all .2s ease;
-            color:var(--text-primary,#fff);
-        }
-        #darkModeToggle:hover {
-            background:var(--glass-bg-hover,rgba(255,255,255,.2));
-            transform:scale(1.05);
-        }
-
-        /* ── Mejoras responsive ── */
-        @media (max-width:768px) {
-            .user-info { gap:.5rem; }
-            .user-avatar { font-size:1.2rem !important; }
+            background:none;border:1px solid rgba(255,255,255,.25);
+            border-radius:8px;padding:.3rem .6rem;cursor:pointer;font-size:1rem;
+            color:inherit;
         }
     </style>
 </head>
-<body class="loading">
+<body>
 
 <!-- ── Loader inicial ─────────────────────────────────────────────────────── -->
 <div id="initialLoader">
-    <div class="init-logo">AXON</div>
+    <div class="init-logo">⚡ AXON</div>
     <div class="init-sub">Laboratorios Académicos</div>
     <div class="init-spin"></div>
 </div>
@@ -99,169 +45,105 @@
 <div class="app-container">
 
     <!-- ── Sidebar ───────────────────────────────────────────────────────── -->
-    <aside class="sidebar" id="sidebar" aria-label="Navegación principal">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar__header">
-            <div class="sidebar__logo" role="img" aria-label="AXON LAB">⚡ AXON</div>
+            <div class="sidebar__logo">⚡ AXON</div>
             <div class="sidebar__subtitle">Laboratorios Académicos</div>
         </div>
-        
-        <nav class="sidebar__nav" role="navigation" aria-label="Menú principal">
-            <a href="#inicio" class="nav-link active" data-page="inicio" aria-current="page">
-                <span class="icon" aria-hidden="true">🏠</span><span>Inicio</span>
+        <nav class="sidebar__nav">
+            <a href="#inicio"       class="nav-link active" data-page="inicio">
+                <span class="icon">🏠</span><span>Inicio</span>
             </a>
             <a href="#laboratorios" class="nav-link" data-page="laboratorios">
-                <span class="icon" aria-hidden="true">📚</span><span>Laboratorios</span>
+                <span class="icon">📚</span><span>Laboratorios</span>
             </a>
-            <a href="#categorias" class="nav-link" data-page="categorias">
-                <span class="icon" aria-hidden="true">🏷️</span><span>Categorías</span>
+            <a href="#categorias"   class="nav-link" data-page="categorias">
+                <span class="icon">🏷️</span><span>Categorías</span>
             </a>
-            <a href="#subir" class="nav-link" data-page="subir" id="subirNavLink" style="display:none;">
-                <span class="icon" aria-hidden="true">📤</span><span>Subir Laboratorio</span>
+            <a href="#subir"        class="nav-link" data-page="subir" id="subirNavLink" style="display:none;">
+                <span class="icon">📤</span><span>Subir Laboratorio</span>
             </a>
 
             <div class="sidebar__divider"></div>
 
-            <!-- Guest nav -->
-            <div id="guestNav">
-                <a href="#registro" class="nav-link" data-page="registro" id="registroNavLink">
-                    <span class="icon" aria-hidden="true">📝</span><span>Registrarse</span>
-                </a>
-                <a href="#login" class="nav-link" data-page="login" id="loginNavLink">
-                    <span class="icon" aria-hidden="true">🔑</span><span>Iniciar Sesión</span>
-                </a>
-            </div>
-
-            <!-- Auth nav -->
-            <div id="authNav" style="display:none;">
-                <a href="#perfil" class="nav-link" data-page="perfil" id="perfilNavLink">
-                    <span class="icon" aria-hidden="true">👤</span><span>Mi Perfil</span>
-                </a>
-                <a href="#" class="nav-link" id="logoutNavLink">
-                    <span class="icon" aria-hidden="true">🚪</span><span>Cerrar Sesión</span>
-                </a>
-            </div>
+            <a href="#registro" class="nav-link" data-page="registro" id="registroNavLink">
+                <span class="icon">📝</span><span>Registrarse</span>
+            </a>
+            <a href="#login"    class="nav-link" data-page="login" id="loginNavLink">
+                <span class="icon">🔑</span><span>Iniciar Sesión</span>
+            </a>
+            <a href="#" class="nav-link" id="logoutNavLink" style="display:none;" onclick="window.cerrarSesion && window.cerrarSesion(); event.preventDefault();">
+                <span class="icon">🚪</span><span>Cerrar Sesión</span>
+            </a>
         </nav>
     </aside>
 
     <!-- ── Overlay móvil ─────────────────────────────────────────────────── -->
-    <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     <!-- ── Contenido principal ───────────────────────────────────────────── -->
-    <main class="main-content" role="main">
+    <main class="main-content">
         <header class="main-header">
-            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">
-                <span></span><span></span><span></span>
-            </button>
-            
-            <div class="header-title" id="headerTitle">
-                <h1>AXON-LAB</h1>
-                <div>Laboratorios Académicos</div>
-            </div>
-            
-            <div class="user-info" role="group" aria-label="Información de usuario">
-                <div class="user-status" id="userStatus">
-                    <span>Hola, <strong id="userName">Invitado</strong></span>
-                </div>
-                <button class="user-avatar" id="userAvatar" aria-label="Perfil de usuario" title="Perfil">
-                    👤
-                </button>
-                <button id="darkModeToggle" title="Cambiar tema" aria-label="Cambiar tema">
-                    🌙
-                </button>
+            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">☰</button>
+            <div class="user-info" style="display:flex;align-items:center;gap:.75rem;">
+                <span style="font-size:.9rem;">Hola, <strong id="userName">Invitado</strong></span>
+                <div class="user-avatar" id="userAvatar" aria-label="Usuario">👤</div>
+                <button id="darkModeToggle" title="Cambiar tema" type="button">🌙</button>
             </div>
         </header>
 
         <!-- Contenedor dinámico SPA -->
-        <div id="page-content" class="page-content" role="region" aria-live="polite">
-            <!-- Contenido cargado dinámicamente -->
-            <div class="empty-state">
-                <div class="empty-icon">⚡</div>
-                <h2>Bienvenido a AXON-LAB</h2>
-                <p>Plataforma de laboratorios académicos interactivos</p>
-                <div class="loader-spinner" style="margin:2rem auto;"></div>
+        <div id="page-content" class="page-content">
+            <div style="text-align:center;padding:4rem;">
+                <div class="loader-spinner" style="margin:0 auto;"></div>
             </div>
         </div>
     </main>
 </div>
 
-<!-- ── Service Worker (PWA) ── -->
-<script>
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/AXON-V2/sw.js')
-            .catch(err => console.warn('SW registration failed:', err));
-    });
-}
-</script>
-
 <!-- ── Script principal (único punto de entrada) ─────────────────────────── -->
 <script type="module" src="js/app.js"></script>
 
 <script>
-// ── Polyfills y utilidades globales ──
-(function() {
-    'use strict';
-    
-    // Smooth scroll polyfill
-    if (!window.scrollToSmooth) {
-        window.scrollToSmooth = (target, duration = 500) => {
-            const start = window.pageYOffset;
-            const distance = target - start;
-            const startTime = performance.now();
-            
-            const animate = (now) => {
-                const elapsed = now - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const easeProgress = 1 - Math.pow(1 - progress, 3);
-                window.scrollTo(0, start + distance * easeProgress);
-                
-                if (progress < 1) {
-                    requestAnimationFrame(animate);
-                }
-            };
-            requestAnimationFrame(animate);
-        };
+// ✅ Loader controlado por app.js + fallback
+window.hideInitialLoader = function() {
+    const loader = document.getElementById('initialLoader');
+    if (loader && !loader.classList.contains('hidden')) {
+        loader.classList.add('hidden');
     }
+};
 
-    // Custom event polyfill
-    (function() {
-        if (typeof window.CustomEvent === 'function') return;
-        
-        function CustomEvent(event, params) {
-            params = params || { bubbles: false, cancelable: false, detail: undefined };
-            const evt = document.createEvent('CustomEvent');
-            evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
-            return evt;
-        }
-        
-        CustomEvent.prototype = window.Event.prototype;
-        window.CustomEvent = CustomEvent;
-    })();
+// Fallback loader (máx 5s)
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => window.hideInitialLoader?.(), 5000);
+});
 
-    // Global utilities (usadas en páginas dinámicas)
-    window.togglePwd = function(id) {
+// ── Funciones globales seguras para páginas dinámicas ───────────────────────
+window.togglePwd = function(id) {
+    try {
         const el = document.getElementById(id);
-        if (el) {
-            el.type = el.type === 'password' ? 'text' : 'password';
-            const icon = el.nextElementSibling?.querySelector('svg');
-            if (icon) icon.style.transform = el.type === 'password' ? 'rotate(0deg)' : 'rotate(180deg)';
+        if (el?.type === 'password') {
+            el.type = 'text';
+        } else if (el) {
+            el.type = 'password';
         }
-    };
+    } catch(e) {/* silent */}
+};
 
-    window.checkStrength = function(val) {
+window.checkStrength = function(val) {
+    try {
         const bar = document.getElementById('strengthBar');
         const label = document.getElementById('strengthLabel');
         if (!bar || !label) return;
         
-        let score = 0;
-        if (val.length >= 8) score++;
-        if (/[A-Z]/.test(val)) score++;
-        if (/[0-9]/.test(val)) score++;
-        if (/[^A-Za-z0-9]/.test(val)) score++;
+        const score = (val?.length >= 8 ? 1 : 0) +
+                     (val && /[A-Z]/.test(val) ? 1 : 0) +
+                     (val && /[0-9]/.test(val) ? 1 : 0) +
+                     (val && /[^A-Za-z0-9]/.test(val) ? 1 : 0);
         
         const levels = [
-            {w:'0%', color:'#e5e7eb', text:'Vacío'},
-            {w:'25%', color:'#ef4444', text:'Muy débil'},
+            {w:'0%', color:'#e5e7eb', text:' '},
+            {w:'25%', color:'#ef4444', text:'Débil'},
             {w:'50%', color:'#f59e0b', text:'Regular'},
             {w:'75%', color:'#3b82f6', text:'Buena'},
             {w:'100%', color:'#10b981', text:'Excelente'}
@@ -269,39 +151,29 @@ if ('serviceWorker' in navigator) {
         
         const level = levels[score] || levels[0];
         bar.style.width = level.w;
-        bar.style.background = level.color;
+        bar.style.backgroundColor = level.color;
         label.textContent = level.text;
         label.style.color = level.color;
-    };
+    } catch(e) {/* silent */}
+};
 
-    // Intersection Observer para lazy loading
-    if ('IntersectionObserver' in window) {
-        window.lazyLoadImages = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src;
-                    img.classList.remove('lazy');
-                    window.lazyLoadImages.unobserve(img);
-                }
-            });
-        });
-    }
-
-    // Ocultar loader gradualmente
-    const hideLoader = () => {
-        const loader = document.getElementById('initialLoader');
-        if (loader) {
-            loader.classList.add('hidden');
-            document.body.classList.remove('loading');
+// ── Logout seguro ───────────────────────────────────────────────────────────
+window.cerrarSesion = async function() {
+    if (typeof cerrarSesion === 'function') {
+        try {
+            await cerrarSesion();
+        } catch(e) {
+            console.error('Logout error:', e);
         }
+    }
+};
+
+// ── Polyfill mínimo para navegadores antiguos ────────────────────────────────
+if (!('remove' in Element.prototype)) {
+    Element.prototype.remove = function() {
+        this.parentNode?.removeChild(this);
     };
-
-    // Esperar app.js y ocultar loader
-    window.addEventListener('appReady', hideLoader);
-    setTimeout(hideLoader, 4000); // Fallback máximo 4s
-})();
+}
 </script>
-
 </body>
 </html>
