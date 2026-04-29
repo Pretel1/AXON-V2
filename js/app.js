@@ -93,6 +93,14 @@ async function initApp() {
 
     try {
         await initAuth();
+    } catch (error) {
+        // El error de lock ocurre cuando dos pestañas compiten por la sesión.
+        // No es fatal — continuamos igual.
+        console.warn('⚠️ initAuth warning (no fatal):', error.message);
+    }
+
+    // Siempre inicializar la UI y el router aunque initAuth falle
+    try {
         actualizarUI();
         setupLogout();
         setupMobileMenu();
@@ -100,12 +108,7 @@ async function initApp() {
         setupDarkMode();
         initRouter();
     } catch (error) {
-        console.error('❌ Error fatal en la inicialización:', error);
-        const loader = document.getElementById('loader');
-        if (loader) {
-            loader.innerHTML = '<div style="color: #e74c3c; text-align: center; padding: 2rem;">Error al cargar la aplicación. Por favor, recarga la página.</div>';
-        }
-        return;
+        console.error('❌ Error en setup:', error);
     }
 
     hideLoaders();
