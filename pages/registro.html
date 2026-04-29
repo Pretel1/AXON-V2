@@ -1,7 +1,6 @@
 <!-- pages/registro.html — AXON-LAB v2.0 -->
 <div class="form-card fade-in" id="registroContainer" style="max-width:500px;margin:2rem auto;">
 
-    <!-- PASO 1: Formulario -->
     <div id="pasoRegistro">
         <div style="text-align:center;margin-bottom:1.5rem;">
             <div style="font-size:2.5rem;">📝</div>
@@ -59,7 +58,6 @@
         </p>
     </div>
 
-    <!-- PASO 2: Verificación enviada -->
     <div id="pasoExito" style="display:none;text-align:center;padding:1rem 0;">
         <div style="font-size:3.5rem;">📧</div>
         <h2>¡Revisa tu correo!</h2>
@@ -69,16 +67,11 @@
             Haz clic en el enlace del correo para activar tu cuenta.<br>
             También revisa la carpeta de <em>spam</em>.
         </p>
-        <button class="btn btn-primary" style="margin-top:1.5rem;" onclick="location.hash='login'">
-            🔐 Ir al login
-        </button>
-        <button id="btnReenviar" class="btn btn-outline" style="margin-top:.75rem;display:block;width:100%;">
-            🔄 Reenviar correo
-        </button>
+        <button class="btn btn-primary" style="margin-top:1.5rem;" onclick="location.hash='login'">🔐 Ir al login</button>
+        <button id="btnReenviar" class="btn btn-outline" style="margin-top:.75rem;display:block;width:100%;">🔄 Reenviar correo</button>
         <div id="msgReenvio" style="margin-top:.5rem;font-size:.88rem;"></div>
     </div>
 
-    <!-- PASO 3: Registro directo (sin email confirm) -->
     <div id="pasoDirecto" style="display:none;text-align:center;padding:1rem 0;">
         <div style="font-size:3.5rem;">✅</div>
         <h2>¡Cuenta creada!</h2>
@@ -86,62 +79,59 @@
     </div>
 </div>
 
-<!-- Script NORMAL para funciones inline (oninput/onclick) -->
+<!-- Script normal: define funciones globales usadas en oninput/onclick -->
 <script>
 function togglePwd(id) {
     var el = document.getElementById(id);
     if (el) el.type = el.type === 'password' ? 'text' : 'password';
 }
 function checkStrength(val) {
-    var bar   = document.getElementById('strengthBar');
+    var bar = document.getElementById('strengthBar');
     var label = document.getElementById('strengthLabel');
     if (!bar || !label) return;
     var score = 0;
-    if (val.length >= 8)           score++;
-    if (/[A-Z]/.test(val))         score++;
-    if (/[0-9]/.test(val))         score++;
-    if (/[^A-Za-z0-9]/.test(val))  score++;
-    var configs = [
-        { w:'0%',   color:'#e5e7eb', text:'' },
-        { w:'25%',  color:'#ef4444', text:'Débil' },
-        { w:'50%',  color:'#f59e0b', text:'Regular' },
-        { w:'75%',  color:'#3b82f6', text:'Buena' },
-        { w:'100%', color:'#10b981', text:'Excelente' }
-    ];
-    var c = configs[score] || configs[0];
-    bar.style.width      = c.w;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    var c = [
+        {w:'0%',   color:'#e5e7eb', text:''},
+        {w:'25%',  color:'#ef4444', text:'Débil'},
+        {w:'50%',  color:'#f59e0b', text:'Regular'},
+        {w:'75%',  color:'#3b82f6', text:'Buena'},
+        {w:'100%', color:'#10b981', text:'Excelente'}
+    ][score] || {w:'0%', color:'#e5e7eb', text:''};
+    bar.style.width = c.w;
     bar.style.background = c.color;
-    label.textContent    = c.text;
-    label.style.color    = c.color;
+    label.textContent = c.text;
+    label.style.color = c.color;
 }
 </script>
 
-<!-- Script con import() dinámico para lógica que necesita módulos ES -->
+<!-- Script con import() dinámico usando URL absoluta resuelta desde base href -->
 <script>
-(function() {
-    var base = window.location.href.split('#')[0];
-    // Asegurar que la base termina en /AXON-V2/
-    var match = base.match(/(.*\/AXON-V2\/)/);
-    var root = match ? match[1] : base.replace(/\/[^\/]*$/, '/');
-    var authUrl = root + 'js/auth.js';
+(function () {
+    // Obtener la base del documento (funciona con el <base href="/AXON-V2/"> del index.html)
+    var base = document.baseURI || document.querySelector('base')?.href || '/AXON-V2/';
+    var authUrl = new URL('js/auth.js', base).href;
 
-    import(authUrl).then(function(mod) {
-        var registrarUsuario       = mod.registrarUsuario;
+    import(authUrl).then(function (mod) {
+        var registrarUsuario = mod.registrarUsuario;
         var iniciarSesionConGoogle = mod.iniciarSesionConGoogle;
-        var supabase               = mod.supabase;
+        var supabase = mod.supabase;
 
-        document.getElementById('btnRegistrar').addEventListener('click', async function() {
-            var nombre   = document.getElementById('regNombre').value.trim();
-            var email    = document.getElementById('regEmail').value.trim();
+        document.getElementById('btnRegistrar').addEventListener('click', async function () {
+            var nombre = document.getElementById('regNombre').value.trim();
+            var email = document.getElementById('regEmail').value.trim();
             var password = document.getElementById('regPassword').value;
-            var confirm  = document.getElementById('regConfirm').value;
-            var msg      = document.getElementById('msgRegistro');
-            var btn      = document.getElementById('btnRegistrar');
+            var confirm = document.getElementById('regConfirm').value;
+            var msg = document.getElementById('msgRegistro');
+            var btn = document.getElementById('btnRegistrar');
 
-            if (!nombre)              { msg.innerHTML = '❌ Ingresa tu nombre.'; return; }
-            if (!email)               { msg.innerHTML = '❌ Ingresa tu correo.'; return; }
-            if (password.length < 8)  { msg.innerHTML = '❌ La contraseña debe tener al menos 8 caracteres.'; return; }
-            if (password !== confirm)  { msg.innerHTML = '❌ Las contraseñas no coinciden.'; return; }
+            if (!nombre)             { msg.innerHTML = '❌ Ingresa tu nombre.'; return; }
+            if (!email)              { msg.innerHTML = '❌ Ingresa tu correo.'; return; }
+            if (password.length < 8) { msg.innerHTML = '❌ La contraseña debe tener al menos 8 caracteres.'; return; }
+            if (password !== confirm) { msg.innerHTML = '❌ Las contraseñas no coinciden.'; return; }
 
             btn.disabled = true; btn.textContent = '⏳ Creando cuenta…';
             var res = await registrarUsuario(nombre, email, password);
@@ -149,36 +139,36 @@ function checkStrength(val) {
             if (res.success) {
                 if (res.needsVerification) {
                     document.getElementById('pasoRegistro').style.display = 'none';
-                    document.getElementById('emailEnviado').textContent   = email;
-                    document.getElementById('pasoExito').style.display    = 'block';
+                    document.getElementById('emailEnviado').textContent = email;
+                    document.getElementById('pasoExito').style.display = 'block';
                 } else {
                     document.getElementById('pasoRegistro').style.display = 'none';
-                    document.getElementById('pasoDirecto').style.display  = 'block';
-                    setTimeout(function() { location.hash = 'inicio'; }, 1800);
+                    document.getElementById('pasoDirecto').style.display = 'block';
+                    setTimeout(function () { location.hash = 'inicio'; }, 1800);
                 }
             } else {
-                msg.innerHTML   = '❌ ' + res.message;
-                btn.disabled    = false;
+                msg.innerHTML = '❌ ' + res.message;
+                btn.disabled = false;
                 btn.textContent = '📝 Crear cuenta';
             }
         });
 
-        document.getElementById('btnReenviar').addEventListener('click', async function() {
+        document.getElementById('btnReenviar').addEventListener('click', async function () {
             var email = document.getElementById('emailEnviado').textContent;
-            var msgR  = document.getElementById('msgReenvio');
-            var btn   = document.getElementById('btnReenviar');
+            var msgR = document.getElementById('msgReenvio');
+            var btn = document.getElementById('btnReenviar');
             btn.disabled = true;
             var result = await supabase.auth.resend({ type: 'signup', email: email });
             msgR.innerHTML = result.error ? '❌ ' + result.error.message : '✅ Correo reenviado.';
-            setTimeout(function() { btn.disabled = false; }, 30000);
+            setTimeout(function () { btn.disabled = false; }, 30000);
         });
 
-        document.getElementById('googleRegistroBtn').addEventListener('click', function() {
+        document.getElementById('googleRegistroBtn').addEventListener('click', function () {
             iniciarSesionConGoogle();
         });
 
-    }).catch(function(err) {
-        console.error('Error cargando auth.js:', err);
+    }).catch(function (err) {
+        console.error('❌ Error cargando auth.js:', err);
     });
 })();
 </script>
