@@ -108,9 +108,35 @@
 // Ocultar loader inicial cuando la app esté lista
 document.addEventListener('DOMContentLoaded', () => {
     const loader = document.getElementById('initialLoader');
-    // Se oculta desde app.js, pero por seguridad también aquí a los 3s
     setTimeout(() => loader?.classList.add('hidden'), 3000);
 });
+
+// ── Funciones globales usadas en páginas cargadas dinámicamente ──
+function togglePwd(id) {
+    var el = document.getElementById(id);
+    if (el) el.type = el.type === 'password' ? 'text' : 'password';
+}
+function checkStrength(val) {
+    var bar = document.getElementById('strengthBar');
+    var label = document.getElementById('strengthLabel');
+    if (!bar || !label) return;
+    var score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    var c = [
+        {w:'0%',   color:'#e5e7eb', text:''},
+        {w:'25%',  color:'#ef4444', text:'Débil'},
+        {w:'50%',  color:'#f59e0b', text:'Regular'},
+        {w:'75%',  color:'#3b82f6', text:'Buena'},
+        {w:'100%', color:'#10b981', text:'Excelente'}
+    ][score] || {w:'0%', color:'#e5e7eb', text:''};
+    bar.style.width = c.w;
+    bar.style.background = c.color;
+    label.textContent = c.text;
+    label.style.color = c.color;
+}
 </script>
 </body>
 </html>
