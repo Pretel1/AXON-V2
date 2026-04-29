@@ -95,6 +95,16 @@ export async function loadPage(page) {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const html = await res.text();
         content.innerHTML = html;
+        // Re-ejecutar scripts insertados via innerHTML (el navegador no los ejecuta solo)
+        for (const oldScript of content.querySelectorAll('script')) {
+            const newScript = document.createElement('script');
+            if (oldScript.src) {
+                newScript.src = oldScript.src;
+            } else {
+                newScript.textContent = oldScript.textContent;
+            }
+            oldScript.replaceWith(newScript);
+        }
         await runPageScript(page);
     } catch (err) {
         console.error('Router loadPage error:', err);
