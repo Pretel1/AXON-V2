@@ -94,7 +94,7 @@
             if (!nombre)              { msg.innerHTML = '❌ Ingresa tu nombre completo.'; return; }
             if (!email)               { msg.innerHTML = '❌ Ingresa tu correo.'; return; }
             if (password.length < 8)  { msg.innerHTML = '❌ La contraseña debe tener al menos 8 caracteres.'; return; }
-            if (password !== confirm)  { msg.innerHTML = '❌ Las contraseñas no coinciden.'; return; }
+            if (password !== confirm) { msg.innerHTML = '❌ Las contraseñas no coinciden.'; return; }
 
             btn.disabled = true;
             btn.textContent = '⏳ Creando cuenta…';
@@ -110,6 +110,8 @@
                     } else {
                         document.getElementById('pasoRegistro').style.display = 'none';
                         document.getElementById('pasoDirecto').style.display = 'block';
+                        // ✅ SOLUCIÓN: Ocultar loader + ir a inicio
+                        window.hideInitialLoader?.();
                         setTimeout(function() { location.hash = 'inicio'; }, 1800);
                     }
                 } else {
