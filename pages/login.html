@@ -15,8 +15,10 @@
             <a href="#" id="btnOlvide" style="font-weight:400;font-size:.82rem;">¿Olvidaste tu contraseña?</a>
         </label>
         <div style="position:relative;">
-            <input type="password" id="loginPassword" class="form-input" placeholder="Tu contraseña" autocomplete="current-password" required style="padding-right:2.8rem;">
-            <button id="togglePass" type="button" style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.1rem;">👁️</button>
+            <input type="password" id="loginPassword" class="form-input" placeholder="Tu contraseña"
+                   autocomplete="current-password" required style="padding-right:2.8rem;">
+            <button id="togglePass" type="button"
+                    style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1.1rem;">👁️</button>
         </div>
     </div>
     <button id="btnIngresar" class="btn btn-primary" style="width:100%;margin-top:.5rem;">🔐 Ingresar</button>
@@ -34,7 +36,8 @@
     </p>
 </div>
 
-<div id="modalRecuperar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;">
+<div id="modalRecuperar"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:16px;padding:2rem;width:min(380px,90%);box-shadow:0 20px 40px rgba(0,0,0,.2);">
         <h3 style="margin-top:0;">📧 Recuperar contraseña</h3>
         <p style="font-size:.88rem;color:#6b7280;">Ingresa tu correo y te enviaremos un link para restablecer tu contraseña.</p>
@@ -49,67 +52,70 @@
 </div>
 
 <script>
-(function () {
-    var base = document.baseURI || '/AXON-V2/';
-    var authUrl = new URL('js/auth.js', base).href;
+(function() {
+    function waitForAuth(cb, tries) {
+        tries = tries || 0;
+        if (window.iniciarSesion) { cb(); return; }
+        if (tries > 50) { console.error("❌ auth no disponible"); return; }
+        setTimeout(function() { waitForAuth(cb, tries + 1); }, 100);
+    }
 
-    import(authUrl).then(function (mod) {
-        var iniciarSesion = mod.iniciarSesion;
-        var iniciarSesionConGoogle = mod.iniciarSesionConGoogle;
-        var recuperarPassword = mod.recuperarPassword;
-        var initAuth = mod.initAuth;
-
+    waitForAuth(function() {
         var modal = document.getElementById('modalRecuperar');
         var msgLogin = document.getElementById('msgLogin');
         var msgRecuperar = document.getElementById('msgRecuperar');
 
-        document.getElementById('togglePass').addEventListener('click', function () {
+        document.getElementById('togglePass').addEventListener('click', function() {
             var inp = document.getElementById('loginPassword');
             inp.type = inp.type === 'password' ? 'text' : 'password';
         });
 
-        document.getElementById('btnIngresar').addEventListener('click', async function () {
+        document.getElementById('btnIngresar').addEventListener('click', async function() {
             var email = document.getElementById('loginEmail').value.trim();
-            var pass = document.getElementById('loginPassword').value;
-            var btn = document.getElementById('btnIngresar');
+            var pass  = document.getElementById('loginPassword').value;
+            var btn   = document.getElementById('btnIngresar');
             if (!email || !pass) { msgLogin.innerHTML = '❌ Completa todos los campos.'; return; }
             btn.disabled = true; btn.textContent = '⏳ Ingresando…';
-            var res = await iniciarSesion(email, pass);
+            var res = await window.iniciarSesion(email, pass);
             if (res.success) {
                 msgLogin.innerHTML = '✅ ¡Bienvenido!';
-                if (initAuth) await initAuth();
-                setTimeout(function () { location.hash = 'inicio'; }, 900);
+                setTimeout(function() { location.hash = 'inicio'; }, 900);
             } else {
                 msgLogin.innerHTML = '❌ ' + res.message;
                 btn.disabled = false; btn.textContent = '🔐 Ingresar';
             }
         });
 
-        ['loginEmail', 'loginPassword'].forEach(function (id) {
-            document.getElementById(id).addEventListener('keydown', function (e) {
+        ['loginEmail', 'loginPassword'].forEach(function(id) {
+            document.getElementById(id).addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') document.getElementById('btnIngresar').click();
             });
         });
 
-        document.getElementById('googleLoginBtn').addEventListener('click', function () { iniciarSesionConGoogle(); });
+        document.getElementById('googleLoginBtn').addEventListener('click', function() {
+            window.iniciarSesionConGoogle();
+        });
 
-        document.getElementById('btnOlvide').addEventListener('click', function (e) {
+        document.getElementById('btnOlvide').addEventListener('click', function(e) {
             e.preventDefault(); msgRecuperar.innerHTML = ''; modal.style.display = 'flex';
         });
-        document.getElementById('btnCerrarModal').addEventListener('click', function () { modal.style.display = 'none'; });
-        modal.addEventListener('click', function (e) { if (e.target === modal) modal.style.display = 'none'; });
-
-        document.getElementById('btnEnviarReset').addEventListener('click', async function () {
-            var email = document.getElementById('recuperarEmail').value.trim();
-            var btn = document.getElementById('btnEnviarReset');
-            if (!email) { msgRecuperar.innerHTML = '❌ Ingresa tu correo.'; return; }
-            btn.disabled = true; btn.textContent = '⏳ Enviando…';
-            var res = await recuperarPassword(email);
-            msgRecuperar.innerHTML = res.success ? '✅ ' + res.message : '❌ ' + res.message;
-            btn.disabled = false; btn.textContent = 'Enviar link';
-            if (res.success) setTimeout(function () { modal.style.display = 'none'; }, 3000);
+        document.getElementById('btnCerrarModal').addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) modal.style.display = 'none';
         });
 
-    }).catch(function (err) { console.error('❌ Error cargando auth.js:', err); });
+        document.getElementById('btnEnviarReset').addEventListener('click', async function() {
+            var email = document.getElementById('recuperarEmail').value.trim();
+            var btn   = document.getElementById('btnEnviarReset');
+            if (!email) { msgRecuperar.innerHTML = '❌ Ingresa tu correo.'; return; }
+            btn.disabled = true; btn.textContent = '⏳ Enviando…';
+            var res = await window.recuperarPassword(email);
+            msgRecuperar.innerHTML = res.success ? '✅ ' + res.message : '❌ ' + res.message;
+            btn.disabled = false; btn.textContent = 'Enviar link';
+            if (res.success) setTimeout(function() { modal.style.display = 'none'; }, 3000);
+        });
+    });
 })();
 </script>
