@@ -2,36 +2,32 @@
 import { supabase } from './supabase-config.js';
 
 let currentUser = null;
-let _setCurrentUserExternal = null;
 
 // ─── Referencia circular segura ──────────────────────────────────────────────
-export function registerSetCurrentUser(fn) { 
-    _setCurrentUserExternal = fn; 
-}
+let _setCurrentUserExternal = null;
+export function registerSetCurrentUser(fn) { _setCurrentUserExternal = fn; }
 
 function _propagateUser(user) {
     currentUser = user;
-    if (_setCurrentUserExternal) {
-        try {
-            _setCurrentUserExternal(user);
-        } catch (e) {
-            console.warn('Error en callback setCurrentUser:', e);
-        }
-    }
+    if (_setCurrentUserExternal) _setCurrentUserExternal(user);
     actualizarUIGlobal();
     document.dispatchEvent(new CustomEvent('authChanged', { detail: { user } }));
 }
 
 // ─── Escuchar cambios de sesión ───────────────────────────────────────────────
-let authListener = null;
+let authSubscription = null;
 function setupAuthListener() {
-    if (authListener) return; // Evitar duplicados
+    if (authSubscription) return; // Prevenir duplicados
     
-    authListener = supabase.auth.onAuthStateChange(async (event, session) => {
-        console.log('🔄 Auth event:', event, session?.user?.email || 'sin user');
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+        console.log('🔄 Auth event:', event);
+        authSubscription = subscription;
 
         if (event === 'PASSWORD_RECOVERY') {
-            window.location.hash = 'restablecer';
+            // ✅ NO reload() - solo hash change
+            if (window.location.hash !== '#restablecer') {
+                window.location.hash = 'restablecer';
+            }
             return;
         }
 
@@ -62,24 +58,20 @@ async function _cargarPerfil(authUser) {
             .eq('id', authUser.id)
             .single();
 
-        if (error && error.code !== 'PGRST116') { // PGRST116 = no rows
-            console.warn('Error perfil:', error);
+        if (error && error.code !== 'PGRST116') {
+            console.warn('Perfil no encontrado:', error);
         }
 
         _propagateUser({
             id: authUser.id,
-            nombre: profile?.nombre || authUser.user_metadata?.name || 
-                    authUser.email?.split('@')[0] || 'Usuario',
+            nombre: profile?.nombre || authUser.email?.split('@')[0] || 'Usuario',
             email: authUser.email,
             rol: profile?.rol || 'estudiante',
             avatar_url: profile?.avatar_url || null,
-            emailVerificado: !!authUser.email_confirmed_at,
-            // Para OAuth
-            full_name: authUser.user_metadata?.full_name || null,
-            avatar: authUser.user_metadata?.avatar_url || null
+            emailVerificado: !!authUser.email_confirmed_at
         });
     } catch (error) {
-        console.error('Error en _cargarPerfil:', error);
+        console.error('_cargarPerfil error:', error);
         throw error;
     }
 }
@@ -91,7 +83,7 @@ export async function initAuth() {
         
         const { data: { user }, error } = await supabase.auth.getUser();
         if (error) {
-            console.warn('Error getUser:', error);
+            console.warn('getUser error:', error);
             _propagateUser(null);
             return null;
         }
@@ -101,10 +93,9 @@ export async function initAuth() {
         } else {
             _propagateUser(null);
         }
-        
         return currentUser;
     } catch (error) {
-        console.error('Error initAuth:', error);
+        console.error('initAuth error:', error);
         _propagateUser(null);
         return null;
     }
@@ -112,248 +103,127 @@ export async function initAuth() {
 
 // ─── Registro ────────────────────────────────────────────────────────────────
 export async function registrarUsuario(nombre, email, password) {
-    // Validaciones
-    if (!nombre?.trim()) return { success: false, message: 'Ingresa tu nombre.' };
-    if (!email?.trim()) return { success: false, message: 'Ingresa tu email.' };
-    if (!password || password.length < 8) {
+    if (!password || password.length < 8)
         return { success: false, message: 'La contraseña debe tener mínimo 8 caracteres.' };
-    }
 
     try {
         const { data, error } = await supabase.auth.signUp({ 
             email: email.trim().toLowerCase(), 
-            password,
-            options: {
-                data: { nombre: nombre.trim() }
-            }
+            password 
         });
-        
         if (error) throw error;
 
+        // Crear perfil en tabla "perfiles"
         if (data.user) {
-            // Crear perfil en tabla "perfiles" (con retry)
-            let perfilError = null;
-            for (let i = 0; i < 3; i++) {
-                const { error: err } = await supabase.from('perfiles').insert({
-                    id: data.user.id,
-                    nombre: nombre.trim(),
-                    email: email.trim().toLowerCase(),
-                    rol: 'estudiante'
-                });
-                
-                if (!err) break;
-                perfilError = err;
-                await new Promise(r => setTimeout(r, 500)); // Esperar 500ms
-            }
-            
-            if (perfilError) {
-                console.warn('Perfil no creado:', perfilError.message);
-            }
+            const { error: perfilError } = await supabase.from('perfiles').insert({
+                id: data.user.id,
+                nombre: nombre?.trim() || 'Usuario',
+                email: email.toLowerCase().trim(),
+                rol: 'estudiante'
+            });
+            if (perfilError) console.warn('Perfil no creado:', perfilError.message);
         }
 
-        const needsVerification = !data.session;
         return {
             success: true,
-            needsVerification,
-            message: needsVerification 
-                ? '✅ Registro exitoso. Revisa tu correo para confirmar tu cuenta.'
-                : '✅ ¡Registro exitoso! Ya puedes iniciar sesión.'
+            needsVerification: !data.session,
+            message: '✅ Registro exitoso. Revisa tu correo para confirmar tu cuenta.'
         };
     } catch (err) {
-        console.error('Error registro:', err);
-        
-        if (err.message?.includes('already registered') || 
-            err.message?.includes('duplicate key')) {
+        if (err.message?.includes('already registered'))
             return { success: false, message: 'Este correo ya está registrado.' };
-        }
-        
-        if (err.message?.includes('Invalid email')) {
-            return { success: false, message: 'Email inválido.' };
-        }
-        
-        return { 
-            success: false, 
-            message: err.message || 'Error en el registro. Intenta de nuevo.' 
-        };
+        return { success: false, message: err.message || 'Error en registro' };
     }
 }
 
 // ─── Login ────────────────────────────────────────────────────────────────────
 export async function iniciarSesion(email, password) {
-    if (!email?.trim() || !password) {
-        return { success: false, message: 'Completa todos los campos.' };
-    }
-
     try {
         const { data, error } = await supabase.auth.signInWithPassword({ 
             email: email.trim().toLowerCase(), 
             password 
         });
-        
         if (error) throw error;
-        
-        if (data.user) {
-            await _cargarPerfil(data.user);
-        }
-        
+        if (data.user) await _cargarPerfil(data.user);
         return { success: true, message: '¡Bienvenido!' };
     } catch (err) {
-        console.error('Error login:', err);
-        
-        if (err.message?.includes('Invalid login') || 
-            err.message?.includes('Credentials')) {
-            return { success: false, message: 'Correo o contraseña incorrectos.' };
-        }
-        
-        if (err.message?.includes('Email not confirmed')) {
-            return { success: false, message: 'Confirma tu correo antes de iniciar sesión.' };
-        }
-        
-        return { 
-            success: false, 
-            message: err.message || 'Error al iniciar sesión.' 
-        };
+        const msg = err.message?.includes('Invalid login')
+            ? 'Credenciales incorrectas.'
+            : err.message;
+        return { success: false, message: msg };
     }
 }
 
 // ─── Google OAuth ─────────────────────────────────────────────────────────────
 export async function iniciarSesionConGoogle() {
-    try {
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: `${window.location.origin}${window.location.pathname}`
-            }
-        });
-        if (error) throw error;
-        return { success: true };
-    } catch (error) {
-        console.error('Error Google OAuth:', error);
-        return { success: false, message: error.message || 'Error con Google.' };
-    }
+    const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: window.location.origin + window.location.pathname
+        }
+    });
+    if (error) return { success: false, message: error.message };
+    return { success: true };
 }
 
 // ─── Logout ───────────────────────────────────────────────────────────────────
 export async function cerrarSesion() {
     try {
         await supabase.auth.signOut();
+        // ✅ NO reload() - solo propagate
         _propagateUser(null);
         return { success: true };
     } catch (error) {
-        console.error('Error logout:', error);
+        console.error('Logout error:', error);
         return { success: false, message: error.message };
     }
 }
 
 // ─── Solicitar email de recuperación ─────────────────────────────────────────
 export async function recuperarPassword(email) {
-    if (!email?.trim()) {
-        return { success: false, message: 'Ingresa tu correo.' };
-    }
-
-    try {
-        const redirectTo = `${window.location.origin}${window.location.pathname}#restablecer`;
-        const { error } = await supabase.auth.resetPasswordForEmail(
-            email.trim().toLowerCase(), 
-            { redirectTo }
-        );
-        
-        if (error) throw error;
-        
-        return { 
-            success: true, 
-            message: '📧 Revisa tu correo. El link caduca en 1 hora.' 
-        };
-    } catch (error) {
-        console.error('Error recuperar password:', error);
-        return { 
-            success: false, 
-            message: error.message || 'Error enviando email de recuperación.' 
-        };
-    }
+    const redirectTo = window.location.origin + window.location.pathname + '#restablecer';
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
+    if (error) return { success: false, message: error.message };
+    return { success: true, message: '📧 Revisa tu correo. El link caduca en 1 hora.' };
 }
 
 // ─── Establecer nueva contraseña (desde el link del email) ───────────────────
 export async function restablecerPassword(nuevaPassword) {
-    if (!nuevaPassword || nuevaPassword.length < 8) {
+    if (!nuevaPassword || nuevaPassword.length < 8)
         return { success: false, message: 'Mínimo 8 caracteres.' };
-    }
 
-    try {
-        const { error } = await supabase.auth.updateUser({ password: nuevaPassword });
-        if (error) throw error;
-        return { success: true, message: '✅ Contraseña actualizada correctamente.' };
-    } catch (error) {
-        console.error('Error restablecer password:', error);
-        return { 
-            success: false, 
-            message: error.message || 'Error actualizando contraseña.' 
-        };
-    }
+    const { error } = await supabase.auth.updateUser({ password: nuevaPassword });
+    if (error) return { success: false, message: error.message };
+    return { success: true, message: '✅ Contraseña actualizada correctamente.' };
 }
 
 // ─── Helpers públicos ─────────────────────────────────────────────────────────
 export function obtenerUsuarioActual() { return currentUser; }
 export function haySesionActiva()       { return !!currentUser; }
 export function esAdmin()               { return currentUser?.rol === 'admin'; }
-export function esEstudiante()          { return currentUser?.rol === 'estudiante'; }
 
 // ─── UI Global ────────────────────────────────────────────────────────────────
 export function actualizarUIGlobal() {
-    try {
-        const isAuth = haySesionActiva();
-        const user = currentUser;
+    const isAuth = haySesionActiva();
+    const user   = currentUser;
 
-        const el = (id) => document.getElementById(id);
+    const el = (id) => document.getElementById(id);
 
-        // Actualizar nombre de usuario
-        const userName = el('userName');
-        if (userName) {
-            userName.textContent = user?.nombre || 'Invitado';
-        }
+    const userName = el('userName');
+    if (userName) userName.textContent = user?.nombre || 'Invitado';
 
-        // Actualizar avatar
-        const avatar = el('userAvatar');
-        if (avatar) {
-            avatar.textContent = isAuth ? '👤' : '👤';
-            avatar.title = user?.nombre || 'Iniciar sesión';
-        }
+    const avatar = el('userAvatar');
+    if (avatar) avatar.textContent = isAuth ? '👤' : '👤';
 
-        // Mostrar/ocultar links de navegación
-        const show = (id, cond) => {
-            const e = el(id);
-            if (e) e.style.display = cond ? '' : 'none';
-        };
-        
-        show('registroNavLink', !isAuth);
-        show('loginNavLink', !isAuth);
-        show('logoutNavLink', isAuth);
-        show('subirNavLink', isAuth);
-        show('perfilNavLink', isAuth);
-
-        // Navbar auth state
-        const authNav = el('authNav');
-        if (authNav) {
-            authNav.style.display = isAuth ? 'flex' : 'none';
-        }
-
-        const guestNav = el('guestNav');
-        if (guestNav) {
-            guestNav.style.display = isAuth ? 'none' : 'flex';
-        }
-
-    } catch (error) {
-        console.warn('Error actualizarUIGlobal:', error);
-    }
+    const show = (id, cond) => { 
+        const e = el(id); 
+        if (e) e.style.display = cond ? '' : 'none'; 
+    };
+    show('registroNavLink', !isAuth);
+    show('loginNavLink', !isAuth);
+    show('logoutNavLink', isAuth);
+    show('subirNavLink', isAuth);
 }
 
-// ─── Cleanup ─────────────────────────────────────────────────────────────────
-export function cleanupAuth() {
-    if (authListener) {
-        supabase.auth.removeAuthListener(authListener.data);
-        authListener = null;
-    }
-}
-
-// No arrancar automáticamente - dejar que app.js lo controle
-console.log('✅ auth.js v2.1 listo');
+// ✅ NO auto-init - app.js lo controla
+console.log('✅ auth.js v2 listo');
