@@ -126,23 +126,26 @@
 
 <script type="module">
 import { uploadLab, saveLinkLab, validarURL, detectarTipoEnlace, formatBytes } from '../js/labs.js';
-import { initAuth }                                                             from '../js/auth.js';
+import { initAuth } from '../js/auth.js';
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
-const user = await initAuth();
-if (!user) {
-    document.getElementById('noAuthMsg').style.display = 'block';
-    document.getElementById('panelArchivo').style.opacity  = '0.3';
-    document.getElementById('panelEnlace').style.opacity   = '0.3';
-    document.getElementById('btnSubir').disabled = true;
-    document.getElementById('btnLink').disabled  = true;
-} else {
-    document.getElementById('userInfo').style.display = 'block';
-    document.getElementById('userEmailDisplay').textContent = user.email;
-}
+let user = null;
+(async () => {
+    user = await initAuth();
+    if (!user) {
+        document.getElementById('noAuthMsg').style.display = 'block';
+        document.getElementById('panelArchivo').style.opacity  = '0.3';
+        document.getElementById('panelEnlace').style.opacity   = '0.3';
+        document.getElementById('btnSubir').disabled = true;
+        document.getElementById('btnLink').disabled  = true;
+    } else {
+        document.getElementById('userInfo').style.display = 'block';
+        document.getElementById('userEmailDisplay').textContent = user.email;
+    }
+})();
 
 // ── Tags ──────────────────────────────────────────────────────────────────────
-window._tags     = [];
+window._tags = [];
 window._tagsLink = [];
 
 window.addTag = function(e) {
@@ -155,6 +158,7 @@ window.addTag = function(e) {
     }
     e.target.value = '';
 };
+
 window.addTagLink = function(e) {
     if (e.key !== 'Enter' && e.key !== ',') return;
     e.preventDefault();
@@ -172,22 +176,31 @@ function renderTags() {
     window._tags.forEach((t, i) => {
         const chip = document.createElement('span');
         chip.className = 'tag-chip';
-        chip.innerHTML = `${t} <button onclick="removeTag(${i})">✕</button>`;
+        chip.innerHTML = `${t} <button type="button" onclick="removeTag(${i})">✕</button>`;
         wrap.insertBefore(chip, document.getElementById('tagInput'));
     });
 }
+
 function renderTagsLink() {
     const wrap = document.getElementById('tagWrapLink');
     wrap.querySelectorAll('.tag-chip').forEach(c => c.remove());
     window._tagsLink.forEach((t, i) => {
         const chip = document.createElement('span');
         chip.className = 'tag-chip';
-        chip.innerHTML = `${t} <button onclick="removeTagLink(${i})">✕</button>`;
+        chip.innerHTML = `${t} <button type="button" onclick="removeTagLink(${i})">✕</button>`;
         wrap.insertBefore(chip, document.getElementById('tagInputLink'));
     });
 }
-window.removeTag     = (i) => { window._tags.splice(i, 1);     renderTags(); };
-window.removeTagLink = (i) => { window._tagsLink.splice(i, 1); renderTagsLink(); };
+
+window.removeTag = (i) => { 
+    window._tags.splice(i, 1); 
+    renderTags(); 
+};
+
+window.removeTagLink = (i) => { 
+    window._tagsLink.splice(i, 1); 
+    renderTagsLink(); 
+};
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 window.switchTab = function(tab) {
@@ -200,9 +213,16 @@ window.switchTab = function(tab) {
 // ── Drag & Drop ───────────────────────────────────────────────────────────────
 let selectedFile = null;
 
-window.fileDragOver  = (e) => { e.preventDefault(); document.getElementById('fileDrop').classList.add('drag-over'); };
-window.fileDragLeave = ()  => { document.getElementById('fileDrop').classList.remove('drag-over'); };
-window.fileDrop      = (e) => {
+window.fileDragOver = (e) => { 
+    e.preventDefault(); 
+    document.getElementById('fileDrop').classList.add('drag-over'); 
+};
+
+window.fileDragLeave = () => { 
+    document.getElementById('fileDrop').classList.remove('drag-over'); 
+};
+
+window.fileDrop = (e) => {
     e.preventDefault();
     document.getElementById('fileDrop').classList.remove('drag-over');
     const f = e.dataTransfer.files[0];
@@ -225,9 +245,20 @@ function setFile(f) {
 // ── URL Preview ───────────────────────────────────────────────────────────────
 window.previewURL = function(url) {
     const prev = document.getElementById('urlPreview');
-    if (!url) { prev.textContent = ''; return; }
+    if (!url) { 
+        prev.textContent = ''; 
+        return; 
+    }
+    
+    // Fallback si las funciones importadas no están disponibles
+    if (typeof validarURL === 'undefined') {
+        prev.textContent = '🔗 URL ingresada';
+        prev.style.color = '#059669';
+        return;
+    }
+    
     if (validarURL(url)) {
-        const tipo = detectarTipoEnlace(url);
+        const tipo = typeof detectarTipoEnlace === 'undefined' ? 'enlace' : detectarTipoEnlace(url);
         const icons = { video:'🎬', onedrive:'☁️', 'google-drive':'📁', dropbox:'📦', enlace:'🔗' };
         prev.textContent = `${icons[tipo]||'🔗'} Detectado: ${tipo} — URL válida ✅`;
         prev.style.color = '#059669';
@@ -239,7 +270,11 @@ window.previewURL = function(url) {
 
 // ── Submit Archivo ────────────────────────────────────────────────────────────
 window.submitArchivo = async function() {
-    if (!user) return;
+    if (!user) {
+        document.getElementById('msgSubir').innerHTML = '❌ Debes iniciar sesión.';
+        return;
+    }
+    
     const msg  = document.getElementById('msgSubir');
     const btn  = document.getElementById('btnSubir');
     const pb   = document.getElementById('progressBar');
@@ -251,29 +286,45 @@ window.submitArchivo = async function() {
 
     if (!title)       { msg.innerHTML = '❌ Ingresa un título.';       return; }
     if (!desc)        { msg.innerHTML = '❌ Ingresa una descripción.'; return; }
-    if (!cat)         { msg.innerHTML = '❌ Selecciona una categoría.';return; }
-    if (!selectedFile){ msg.innerHTML = '❌ Selecciona un archivo.';   return; }
-    if (selectedFile.size > 50*1024*1024) { msg.innerHTML = '❌ Archivo mayor a 50 MB.'; return; }
+    if (!cat)         { msg.innerHTML = '❌ Selecciona una categoría.'; return; }
+    if (!selectedFile){ msg.innerHTML = '❌ Selecciona un archivo.';    return; }
+    if (selectedFile.size > 50*1024*1024) { 
+        msg.innerHTML = '❌ Archivo mayor a 50 MB.'; 
+        return; 
+    }
 
-    btn.disabled = true; btn.textContent = '⏳ Subiendo...';
-    pb.style.display = 'block'; fill.style.width = '30%';
+    btn.disabled = true; 
+    btn.textContent = '⏳ Subiendo...';
+    msg.innerHTML = '';
+    pb.style.display = 'block'; 
+    fill.style.width = '30%';
 
-    const res = await uploadLab(selectedFile, title, desc, cat, window._tags);
-    fill.style.width = '100%';
+    try {
+        const res = await uploadLab(selectedFile, title, desc, cat, window._tags);
+        fill.style.width = '100%';
 
-    if (res.success) {
-        msg.innerHTML = '✅ ¡Laboratorio subido correctamente!';
-        setTimeout(() => location.hash = `detalle?id=${res.lab.id}`, 1400);
-    } else {
-        msg.innerHTML = '❌ ' + res.error;
-        btn.disabled = false; btn.textContent = '📤 Subir laboratorio';
+        if (res && res.success) {
+            msg.innerHTML = '✅ ¡Laboratorio subido correctamente!';
+            setTimeout(() => location.hash = `detalle?id=${res.lab.id}`, 1400);
+        } else {
+            throw new Error(res?.error || 'Error desconocido');
+        }
+    } catch (error) {
+        msg.innerHTML = '❌ ' + (error.message || 'Error al subir el archivo');
+        btn.disabled = false; 
+        btn.textContent = '📤 Subir laboratorio';
         pb.style.display = 'none';
+        fill.style.width = '0%';
     }
 };
 
 // ── Submit Enlace ─────────────────────────────────────────────────────────────
 window.submitEnlace = async function() {
-    if (!user) return;
+    if (!user) {
+        document.getElementById('msgSubir').innerHTML = '❌ Debes iniciar sesión.';
+        return;
+    }
+    
     const msg = document.getElementById('msgSubir');
     const btn = document.getElementById('btnLink');
 
@@ -284,19 +335,29 @@ window.submitEnlace = async function() {
 
     if (!title) { msg.innerHTML = '❌ Ingresa un título.';       return; }
     if (!desc)  { msg.innerHTML = '❌ Ingresa una descripción.'; return; }
-    if (!cat)   { msg.innerHTML = '❌ Selecciona una categoría.';return; }
-    if (!url || !validarURL(url)) { msg.innerHTML = '❌ Ingresa una URL válida.'; return; }
+    if (!cat)   { msg.innerHTML = '❌ Selecciona una categoría.'; return; }
+    if (!url || (typeof validarURL !== 'undefined' && !validarURL(url))) { 
+        msg.innerHTML = '❌ Ingresa una URL válida.'; 
+        return; 
+    }
 
-    btn.disabled = true; btn.textContent = '⏳ Guardando...';
+    btn.disabled = true; 
+    btn.textContent = '⏳ Guardando...';
+    msg.innerHTML = '';
 
-    const res = await saveLinkLab(url, title, desc, cat, window._tagsLink);
+    try {
+        const res = await saveLinkLab(url, title, desc, cat, window._tagsLink);
 
-    if (res.success) {
-        msg.innerHTML = '✅ ¡Enlace guardado correctamente!';
-        setTimeout(() => location.hash = `detalle?id=${res.lab.id}`, 1400);
-    } else {
-        msg.innerHTML = '❌ ' + res.error;
-        btn.disabled = false; btn.textContent = '🔗 Guardar enlace';
+        if (res && res.success) {
+            msg.innerHTML = '✅ ¡Enlace guardado correctamente!';
+            setTimeout(() => location.hash = `detalle?id=${res.lab.id}`, 1400);
+        } else {
+            throw new Error(res?.error || 'Error desconocido');
+        }
+    } catch (error) {
+        msg.innerHTML = '❌ ' + (error.message || 'Error al guardar el enlace');
+        btn.disabled = false; 
+        btn.textContent = '🔗 Guardar enlace';
     }
 };
 </script>
