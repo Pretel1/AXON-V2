@@ -24,8 +24,8 @@
                 <button type="button" onclick="togglePwd('regPassword')"
                         style="position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;">👁️</button>
             </div>
-            <div style="height:4px;background:#e5e7eb;border-radius:2px;margin:.4rem 0;">
-                <div id="strengthBar" style="height:100%;width:0%;border-radius:2px;transition:.3s;"></div>
+            <div style="height:4px;background:#e5e7eb;border-radius:2px;margin:.4rem 0;overflow:hidden;">
+                <div id="strengthBar" style="height:100%;width:0%;border-radius:2px;transition:.3s ease;"></div>
             </div>
             <small id="strengthLabel" style="color:#9ca3af;font-size:.78rem;"></small>
         </div>
@@ -91,10 +91,29 @@
             var btn      = document.getElementById('btnRegistrar');
 
             msg.innerHTML = '';
-            if (!nombre)              { msg.innerHTML = '❌ Ingresa tu nombre completo.'; return; }
-            if (!email)               { msg.innerHTML = '❌ Ingresa tu correo.'; return; }
-            if (password.length < 8)  { msg.innerHTML = '❌ La contraseña debe tener al menos 8 caracteres.'; return; }
-            if (password !== confirm) { msg.innerHTML = '❌ Las contraseñas no coinciden.'; return; }
+            
+            // ✅ Mensajes con espaciado perfecto
+            if (!nombre.trim()) { 
+                msg.innerHTML = '❌ Ingresa tu nombre completo.'; 
+                document.getElementById('regNombre').focus(); 
+                return; 
+            }
+            if (!email) { 
+                msg.innerHTML = '❌ Ingresa tu correo electrónico.'; 
+                document.getElementById('regEmail').focus(); 
+                return; 
+            }
+            if (password.length < 8) { 
+                msg.innerHTML = '❌ La contraseña debe tener al menos 8 caracteres.'; 
+                document.getElementById('regPassword').focus(); 
+                return; 
+            }
+            if (password !== confirm) { 
+                msg.innerHTML = '❌ <strong>Las contraseñas no coinciden</strong>';  // ✅ Mejor visual
+                document.getElementById('regConfirm').focus(); 
+                document.getElementById('regConfirm').select();
+                return; 
+            }
 
             btn.disabled = true;
             btn.textContent = '⏳ Creando cuenta…';
@@ -110,9 +129,11 @@
                     } else {
                         document.getElementById('pasoRegistro').style.display = 'none';
                         document.getElementById('pasoDirecto').style.display = 'block';
-                        // ✅ SOLUCIÓN: Ocultar loader + ir a inicio
+                        // ✅ FIX: Ocultar loader ANTES del hash change
                         window.hideInitialLoader?.();
-                        setTimeout(function() { location.hash = 'inicio'; }, 1800);
+                        setTimeout(function() { 
+                            location.hash = 'inicio'; 
+                        }, 1800);
                     }
                 } else {
                     msg.innerHTML = '❌ ' + (res.message || 'Error desconocido');
@@ -120,7 +141,7 @@
                     btn.textContent = '📝 Crear cuenta';
                 }
             } catch(err) {
-                msg.innerHTML = '❌ ' + err.message;
+                msg.innerHTML = '❌ Error: ' + (err.message || 'Intenta de nuevo');
                 btn.disabled = false;
                 btn.textContent = '📝 Crear cuenta';
             }
