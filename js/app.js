@@ -1,5 +1,5 @@
 // js/app.js — AXON-LAB v2.0  |  Punto de entrada principal
-import { initAuth, cerrarSesion, actualizarUIGlobal, haySesionActiva } from './auth.js';
+import { initAuth, cerrarSesion, actualizarUIGlobal, haySesionActiva, registrarUsuario, iniciarSesion, iniciarSesionConGoogle, recuperarPassword, supabase } from './auth.js';
 import { initRouter } from './router.js';
 
 // ─── Actualizar UI completa ───────────────────────────────────────────────────
@@ -64,6 +64,11 @@ function setupDarkMode() {
 // ─── Exponer globalmente para páginas inline ──────────────────────────────────
 window.haySesionActiva      = haySesionActiva;
 window.actualizarUIGlobal   = actualizarUIGlobal;
+window.registrarUsuario     = registrarUsuario;
+window.iniciarSesion        = iniciarSesion;
+window.iniciarSesionConGoogle = iniciarSesionConGoogle;
+window.recuperarPassword    = recuperarPassword;
+window.supabaseClient       = supabase;
 
 // ─── Inicializar ──────────────────────────────────────────────────────────────
 async function initApp() {
