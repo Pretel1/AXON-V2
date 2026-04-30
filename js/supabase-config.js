@@ -12,10 +12,10 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     }
 });
 
-export const LABS_BUCKET  = 'laboratorios';
+export const LABS_BUCKET = 'laboratorios';
 export const MEDIA_BUCKET = 'media';
 
-// 👇 ESTA LÍNEA FALTABA
-export const EMAIL_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/send-email`;
+// ⚠️ ESTA LÍNEA ES CLAVE
+export const EMAIL_FUNCTION_URL = 'https://librysniqcicbdcobmzu.supabase.co/functions/v1/send-email';
 
 console.log('✅ Supabase listo');
