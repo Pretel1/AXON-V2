@@ -52,7 +52,7 @@ async function _cargarPerfil(authUser) {
             .from('perfiles')
             .select('nombre, rol, avatar_url')
             .eq('id', authUser.id)
-            .maybeSingle();  // FIX: era .single() → HTTP 406 si perfil no existe
+            .maybeSingle();
 
         if (error && error.code !== 'PGRST116') {
             console.warn('Perfil no encontrado:', error);
@@ -78,7 +78,10 @@ export async function initAuth() {
 
         const { data: { user }, error } = await supabase.auth.getUser();
         if (error) {
-            console.warn('getUser error:', error);
+            // AuthSessionMissingError es normal cuando no hay sesión activa — no es un error real
+            if (error.name !== 'AuthSessionMissingError' && error.message !== 'Auth session missing!') {
+                console.warn('getUser error:', error);
+            }
             _propagateUser(null);
             return null;
         }
@@ -139,14 +142,15 @@ export async function registrarUsuario(nombre, email, password) {
         });
         if (error) throw error;
 
-        // Fallback por si el trigger SQL no crea el perfil
-        if (data.user && !data.user.email_confirmed_at) {
+        // Intentar crear perfil solo si la sesión ya está activa (email confirm OFF)
+        // Si email confirm está ON, el trigger SQL lo crea al confirmar
+        if (data.user && data.session) {
             const { error: perfilError } = await supabase.from('perfiles').insert({
                 id:     data.user.id,
                 nombre: nombre?.trim() || 'Usuario',
                 email:  email.toLowerCase().trim(),
                 rol:    'estudiante'
-            }).select().single();
+            });
 
             if (perfilError && perfilError.code !== '23505' && perfilError.code !== 'PGRST116') {
                 console.warn('Perfil fallback no creado:', perfilError.message);
@@ -168,6 +172,8 @@ export async function registrarUsuario(nombre, email, password) {
     } catch (err) {
         if (err.message?.includes('already registered') || err.message?.includes('User already registered'))
             return { success: false, message: 'Este correo ya está registrado.' };
+        if (err.status === 500 || err.message?.includes('500'))
+            return { success: false, message: 'Error del servidor. Verifica que el correo sea válido o intenta más tarde.' };
         return { success: false, message: err.message || 'Error en registro' };
     }
 }
@@ -182,11 +188,15 @@ export async function iniciarSesion(email, password) {
         if (data.user) await _cargarPerfil(data.user);
         return { success: true, message: '¡Bienvenido!' };
     } catch (err) {
-        const msg = err.message?.includes('Invalid login')
-            ? 'Credenciales incorrectas.'
-            : err.message?.includes('Email not confirmed')
-            ? 'Debes confirmar tu correo antes de iniciar sesión.'
-            : err.message;
+        let msg;
+        if (err.message?.includes('Invalid login') || err.message?.includes('invalid_credentials'))
+            msg = 'Correo o contraseña incorrectos.';
+        else if (err.message?.includes('Email not confirmed'))
+            msg = 'Debes confirmar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada.';
+        else if (err.message?.includes('Too many requests'))
+            msg = 'Demasiados intentos. Espera unos minutos.';
+        else
+            msg = err.message;
         return { success: false, message: msg };
     }
 }
