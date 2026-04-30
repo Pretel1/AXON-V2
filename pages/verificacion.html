@@ -1,337 +1,115 @@
-<!-- ============================================ -->
-<!-- PÁGINA: VERIFICACIÓN POR CÓDIGO              -->
-<!-- Compatible con auth.js (Appwrite)           -->
-<!-- ============================================ -->
+<!-- pages/verificacion.html — AXON-LAB v2.0 -->
+<!-- FIX: Supabase usa links mágicos, no OTP de 6 dígitos (eso era Appwrite) -->
 
 <div class="page fade-in">
-    <div class="container" style="max-width: 500px;">
-        
-        <div class="page-header" style="text-align: center; margin-bottom: var(--space-xl);">
+    <div class="container" style="max-width:500px;">
+
+        <div class="page-header" style="text-align:center;margin-bottom:var(--space-xl);">
             <h1>🔐 <span class="highlight">Verificar Cuenta</span></h1>
-            <p style="color: var(--text-muted);">Ingresa el código de verificación enviado a tu correo</p>
         </div>
-        
-        <div class="form-container">
-            <!-- Estado: Solicitando código -->
-            <div id="estadoFormulario">
-                <form id="verificacionForm">
-                    <div class="form-group">
-                        <label for="otpCode">Código de verificación</label>
-                        <input type="text" id="otpCode" maxlength="6" placeholder="Ej: 123456" required autocomplete="off" style="text-align: center; font-size: 1.5rem; letter-spacing: 4px;">
-                        <span class="error-message" id="errorOtp" style="display: none;">❌ Código inválido (debe ser de 6 dígitos)</span>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary" id="btnVerificar">✅ Verificar cuenta</button>
-                    </div>
-                </form>
-                
-                <div style="text-align: center; margin-top: var(--space-lg);">
-                    <p>¿No recibiste el código?</p>
-                    <button id="btnReenviar" class="btn btn-outline">🔄 Reenviar código</button>
-                </div>
+
+        <div class="form-container" style="text-align:center;padding:2rem 1rem;">
+
+            <div id="estadoCargando">
+                <div style="font-size:2.5rem;">⏳</div>
+                <p>Verificando tu enlace…</p>
             </div>
-            
-            <!-- Estado: Verificando -->
-            <div id="estadoVerificando" style="display: none; text-align: center; padding: 2rem;">
-                <div style="font-size: 2rem;">⏳</div>
-                <p>Verificando tu código...</p>
-            </div>
-            
-            <!-- Estado: Éxito -->
-            <div id="estadoExito" style="display: none; text-align: center; padding: 2rem;">
-                <div style="font-size: 4rem;">✅</div>
+
+            <div id="estadoExito" style="display:none;">
+                <div style="font-size:4rem;">✅</div>
                 <h3>¡Cuenta verificada!</h3>
-                <p>Tu cuenta ha sido verificada exitosamente.</p>
-                <button id="btnIrLogin" class="btn btn-primary">🔐 Iniciar sesión</button>
+                <p>Tu correo ha sido confirmado correctamente.</p>
+                <button class="btn btn-primary" onclick="location.hash='login'">🔐 Iniciar sesión</button>
             </div>
-            
-            <!-- Estado: Error -->
-            <div id="estadoError" style="display: none; text-align: center; padding: 2rem;">
-                <div style="font-size: 4rem;">❌</div>
-                <h3>Error de verificación</h3>
-                <p id="errorMensaje"></p>
-                <button id="btnReintentar" class="btn btn-primary">🔄 Reintentar</button>
-                <button id="btnVolverRegistro" class="btn btn-outline" style="margin-top: 1rem;">← Volver al registro</button>
+
+            <div id="estadoYaVerificado" style="display:none;">
+                <div style="font-size:4rem;">✅</div>
+                <h3>¡Ya estás confirmado!</h3>
+                <p>Tu cuenta ya estaba activa. Puedes acceder directamente.</p>
+                <button class="btn btn-primary" onclick="location.hash='inicio'">🏠 Ir al inicio</button>
             </div>
-            
-            <!-- Contenedor para mensajes generales -->
-            <div id="mensajeGeneral" style="display: none; margin-top: var(--space-md); padding: var(--space-md); border-radius: var(--radius-md);"></div>
+
+            <div id="estadoPendiente" style="display:none;">
+                <div style="font-size:4rem;">📧</div>
+                <h3>Revisa tu correo</h3>
+                <p>Te enviamos un enlace de verificación. Haz clic en él para activar tu cuenta.</p>
+                <p style="font-size:.85rem;color:#6b7280;">¿No llegó? Revisa la carpeta de <em>spam</em>.</p>
+                <button class="btn btn-outline" style="margin-top:1rem;" id="btnReenviar">🔄 Reenviar enlace</button>
+                <div id="msgReenvio" style="margin-top:.75rem;font-size:.9rem;"></div>
+            </div>
+
+            <div id="estadoError" style="display:none;">
+                <div style="font-size:4rem;">❌</div>
+                <h3>Enlace inválido o expirado</h3>
+                <p id="errorDetalle">Solicita un nuevo correo de verificación.</p>
+                <button class="btn btn-primary" onclick="location.hash='registro'">← Volver al registro</button>
+            </div>
+
         </div>
     </div>
 </div>
 
-<style>
-    .btn-outline {
-        background: transparent;
-        border: 2px solid var(--color-primary, #007bff);
-        color: var(--color-primary, #007bff);
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-    
-    .btn-outline:hover {
-        background: var(--color-primary, #007bff);
-        color: white;
-    }
-    
-    .alert {
-        padding: 0.75rem;
-        border-radius: 8px;
-        margin: 1rem 0;
-    }
-    
-    .alert-success {
-        background: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-    
-    .alert-error {
-        background: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-    }
-    
-    .alert-info {
-        background: #d1ecf1;
-        color: #0c5460;
-        border: 1px solid #bee5eb;
-    }
-</style>
-
 <script type="module">
-    import { verificarEmail, reenviarCodigoVerificacion, haySesionActiva, obtenerUsuarioActual } from '../js/auth.js';
-    
-    // ============================================
-    // VARIABLES GLOBALES
-    // ============================================
-    let userIdActual = null;
-    let emailActual = null;
-    
-    // Elementos DOM
-    const estadoFormulario = document.getElementById('estadoFormulario');
-    const estadoVerificando = document.getElementById('estadoVerificando');
-    const estadoExito = document.getElementById('estadoExito');
-    const estadoError = document.getElementById('estadoError');
-    const errorMensaje = document.getElementById('errorMensaje');
-    const mensajeGeneral = document.getElementById('mensajeGeneral');
-    
-    const form = document.getElementById('verificacionForm');
-    const otpInput = document.getElementById('otpCode');
-    const errorOtp = document.getElementById('errorOtp');
-    const btnVerificar = document.getElementById('btnVerificar');
-    const btnReenviar = document.getElementById('btnReenviar');
-    const btnIrLogin = document.getElementById('btnIrLogin');
-    const btnReintentar = document.getElementById('btnReintentar');
-    const btnVolverRegistro = document.getElementById('btnVolverRegistro');
-    
-    // ============================================
-    // OBTENER INFORMACIÓN DEL USUARIO
-    // ============================================
-    async function obtenerInfoUsuario() {
-        // Opción 1: Usuario ya tiene sesión iniciada (sin verificar)
-        if (haySesionActiva()) {
-            const user = obtenerUsuarioActual();
-            if (user && !user.emailVerificado) {
-                userIdActual = user.id;
-                emailActual = user.email;
-                mostrarMensaje(`📧 Se ha enviado un código de verificación a: ${emailActual}`, 'info');
-                return true;
-            }
-        }
-        
-        // Opción 2: Buscar en localStorage (desde registro.html)
-        const tempData = localStorage.getItem('axon_temp_verificacion');
-        if (tempData) {
-            try {
-                const data = JSON.parse(tempData);
-                userIdActual = data.userId;
-                emailActual = data.email;
-                mostrarMensaje(`📧 Código enviado a: ${emailActual}`, 'info');
-                return true;
-            } catch (e) {
-                console.error('Error al parsear datos temporales:', e);
-            }
-        }
-        
-        // Opción 3: Intentar obtener de sessionStorage
-        const sessionUser = sessionStorage.getItem('currentUser');
-        if (sessionUser) {
-            try {
-                const user = JSON.parse(sessionUser);
-                if (!user.emailVerificado) {
-                    userIdActual = user.id;
-                    emailActual = user.email;
-                    return true;
-                }
-            } catch (e) {}
-        }
-        
-        // No se encontró información
-        mostrarEstadoError('No se encontró información de verificación. Por favor, regístrate nuevamente.');
-        return false;
+import { supabase } from '../js/supabase-config.js';
+
+const show = (id) => {
+    ['estadoCargando','estadoExito','estadoYaVerificado','estadoPendiente','estadoError']
+        .forEach(s => { document.getElementById(s).style.display = s === id ? 'block' : 'none'; });
+};
+
+async function init() {
+    const hashStr   = window.location.hash.slice(1);
+    const search    = window.location.search;
+    const allParams = new URLSearchParams(hashStr.includes('=') ? hashStr : search);
+
+    const type        = allParams.get('type');
+    const accessToken = allParams.get('access_token');
+    const errorDesc   = allParams.get('error_description');
+
+    if (errorDesc) {
+        document.getElementById('errorDetalle').textContent = decodeURIComponent(errorDesc);
+        show('estadoError');
+        return;
     }
-    
-    // ============================================
-    // FUNCIONES AUXILIARES
-    // ============================================
-    function mostrarMensaje(mensaje, tipo = 'info') {
-        mensajeGeneral.textContent = mensaje;
-        mensajeGeneral.className = `alert alert-${tipo}`;
-        mensajeGeneral.style.display = 'block';
-        
-        // Ocultar después de 5 segundos
-        setTimeout(() => {
-            if (mensajeGeneral.style.display === 'block') {
-                mensajeGeneral.style.display = 'none';
-            }
-        }, 5000);
-    }
-    
-    function limpiarMensaje() {
-        mensajeGeneral.style.display = 'none';
-        errorOtp.style.display = 'none';
-    }
-    
-    function mostrarEstadoExito() {
-        estadoFormulario.style.display = 'none';
-        estadoVerificando.style.display = 'none';
-        estadoError.style.display = 'none';
-        estadoExito.style.display = 'block';
-        
-        // Limpiar datos temporales
-        localStorage.removeItem('axon_temp_verificacion');
-    }
-    
-    function mostrarEstadoError(mensaje) {
-        estadoFormulario.style.display = 'none';
-        estadoVerificando.style.display = 'none';
-        estadoExito.style.display = 'none';
-        estadoError.style.display = 'block';
-        
-        if (errorMensaje) {
-            errorMensaje.textContent = mensaje;
-        }
-    }
-    
-    function mostrarEstadoFormulario() {
-        estadoFormulario.style.display = 'block';
-        estadoVerificando.style.display = 'none';
-        estadoExito.style.display = 'none';
-        estadoError.style.display = 'none';
-    }
-    
-    // ============================================
-    // VERIFICAR CÓDIGO
-    // ============================================
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const codigo = otpInput.value.trim();
-        
-        if (!codigo || codigo.length !== 6) {
-            errorOtp.style.display = 'block';
+
+    if (type === 'signup' || type === 'email_change' || accessToken) {
+        await new Promise(r => setTimeout(r, 800));
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        if (error || !session) {
+            document.getElementById('errorDetalle').textContent =
+                'El enlace expiró o ya fue usado. Regístrate de nuevo o solicita otro.';
+            show('estadoError');
             return;
         }
-        
-        errorOtp.style.display = 'none';
-        limpiarMensaje();
-        
-        // Mostrar estado de verificación
-        estadoFormulario.style.display = 'none';
-        estadoVerificando.style.display = 'block';
-        
-        const result = await verificarEmail(codigo, userIdActual);
-        
-        if (result.success) {
-            mostrarEstadoExito();
-        } else {
-            estadoVerificando.style.display = 'none';
-            mostrarEstadoError(result.message);
-        }
-    });
-    
-    // Validar entrada del código (solo números)
-    otpInput.addEventListener('input', (e) => {
-        e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
-        errorOtp.style.display = 'none';
-    });
-    
-    // ============================================
-    // REENVIAR CÓDIGO
-    // ============================================
-    btnReenviar.addEventListener('click', async () => {
-        limpiarMensaje();
-        btnReenviar.disabled = true;
-        btnReenviar.textContent = '⏳ Enviando...';
-        
-        const result = await reenviarCodigoVerificacion();
-        
-        if (result.success) {
-            mostrarMensaje(result.message, 'success');
-        } else {
-            mostrarMensaje(result.message, 'error');
-        }
-        
-        setTimeout(() => {
-            btnReenviar.disabled = false;
-            btnReenviar.textContent = '🔄 Reenviar código';
-        }, 3000);
-    });
-    
-    // ============================================
-    // BOTONES DE NAVEGACIÓN
-    // ============================================
-    
-    // Ir a login (desde éxito)
-    btnIrLogin.addEventListener('click', () => {
-        if (typeof window.cambiarPagina === 'function') {
-            window.cambiarPagina('login');
-        } else {
-            window.location.hash = '#login';
-        }
-        window.location.reload(); // Recargar para actualizar estado
-    });
-    
-    // Reintentar (desde error)
-    btnReintentar.addEventListener('click', () => {
-        mostrarEstadoFormulario();
-        otpInput.value = '';
-    });
-    
-    // Volver al registro (desde error)
-    btnVolverRegistro.addEventListener('click', () => {
-        if (typeof window.cambiarPagina === 'function') {
-            window.cambiarPagina('registro');
-        } else {
-            window.location.hash = '#registro';
-        }
-    });
-    
-    // ============================================
-    // INICIALIZAR
-    // ============================================
-    (async function init() {
-        const tieneInfo = await obtenerInfoUsuario();
-        
-        if (!tieneInfo) {
-            // No se puede proceder
+
+        history.replaceState(null, '', window.location.pathname);
+        show('estadoExito');
+        setTimeout(() => { location.hash = 'inicio'; }, 3000);
+        return;
+    }
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user?.email_confirmed_at) {
+        show('estadoYaVerificado');
+        return;
+    }
+
+    show('estadoPendiente');
+
+    document.getElementById('btnReenviar')?.addEventListener('click', async () => {
+        const email = session?.user?.email;
+        const msg   = document.getElementById('msgReenvio');
+
+        if (!email) {
+            msg.innerHTML = '⚠️ No podemos reenviar sin tu email. Vuelve al <a href="#registro">registro</a>.';
             return;
         }
-        
-        // Si ya está verificado, redirigir a inicio
-        if (haySesionActiva()) {
-            const user = obtenerUsuarioActual();
-            if (user && user.emailVerificado) {
-                mostrarEstadoExito();
-                return;
-            }
-        }
-        
-        // Mostrar formulario normalmente
-        mostrarEstadoFormulario();
-    })();
+
+        const { error } = await supabase.auth.resend({ type: 'signup', email });
+        msg.innerHTML = error ? '❌ ' + error.message : '✅ Enlace reenviado. Revisa tu bandeja.';
+    });
+}
+
+init();
 </script>
