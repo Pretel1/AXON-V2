@@ -2,9 +2,9 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/+esm';
 
 const SUPABASE_URL = 'https://librysniqcicbdcobmzu.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_OMlvkBnkhJOY1sZVIhS54Q_DENu2TpF';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpYnJ5c25pcWNpY2JkY29ibXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MTc1NDEsImV4cCI6MjA5Mjk5MzU0MX0.1lJqz72D5p0W0xI79MBXh5tN_evrYske7RlE9tlZqj8';
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
         autoRefreshToken: true,
         persistSession: true,
