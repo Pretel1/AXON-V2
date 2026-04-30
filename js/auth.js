@@ -52,7 +52,7 @@ async function _cargarPerfil(authUser) {
             .from('perfiles')
             .select('nombre, rol, avatar_url')
             .eq('id', authUser.id)
-            .single();
+            .maybeSingle();  // FIX: era .single() → HTTP 406 si perfil no existe
 
         if (error && error.code !== 'PGRST116') {
             console.warn('Perfil no encontrado:', error);
