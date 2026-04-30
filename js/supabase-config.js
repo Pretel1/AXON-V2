@@ -1,8 +1,7 @@
-// js/supabase-config.js — AXON-LAB v2.0
+// js/supabase-config.js
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 const SUPABASE_URL = 'https://librysniqcicbdcobmzu.supabase.co';
-
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_OMlvkBnkhJOY1sZVIhS54Q_DENu2TpF';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
@@ -12,5 +11,11 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
         detectSessionInUrl: true
     }
 });
+
+export const LABS_BUCKET  = 'laboratorios';
+export const MEDIA_BUCKET = 'media';
+
+// 👇 ESTA LÍNEA FALTABA
+export const EMAIL_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/send-email`;
 
 console.log('✅ Supabase listo');
