@@ -135,7 +135,7 @@ export async function listLabs({ category = null, search = null, limit = 50, pag
     try {
         let query = supabase
             .from('laboratorios')
-            .select('*, perfiles(nombre)', { count: 'exact' })
+            .select('*', { count: 'exact' })  // FIX: join perfiles(nombre) → HTTP 400
             .order('creado_en', { ascending: false })
             .range(page * limit, (page + 1) * limit - 1);
 
@@ -161,7 +161,7 @@ export async function getLabById(id) {
     try {
         const { data, error } = await supabase
             .from('laboratorios')
-            .select('*, perfiles(nombre, email)')
+            .select('*')  // FIX: join perfiles eliminado → HTTP 400
             .eq('id', id)
             .single();
         if (error) throw error;
@@ -246,7 +246,7 @@ function _mapLab(d) {
         extension:    d.extension,
         tags:         d.tags || [],
         userId:       d.user_id,
-        autorNombre:  d.perfiles?.nombre || 'Desconocido',
+        autorNombre:  'Autor AXON',  // FIX: sin join, usar fallback
         createdAt:    d.creado_en,
         downloads:    d.downloads || 0
     };
